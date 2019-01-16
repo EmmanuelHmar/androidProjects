@@ -22,7 +22,7 @@ public class NewsContent {
 //    @SerializedName("id")
     @Expose
     private String webTitle;
-    @SerializedName("date")
+    @SerializedName("webPublicationDate")
 //    @SerializedName("node_id")
     @Expose
     private String date;
@@ -57,7 +57,8 @@ public class NewsContent {
     }
 
     public String getDate() {
-        return date;
+
+        return date.substring(0, date.indexOf("T"));
     }
 
     public URI getWebURL() {
