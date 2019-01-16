@@ -1,5 +1,7 @@
 package com.emmanuelhmar.newsapp;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
@@ -14,11 +16,12 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements NewsAdapter.onNoteListener {
     private static final String TAG = MainActivity.class.getName();
     private final String API_KEY = "4e2c9e0c-e5ed-4047-b898-d8bf5733034b";
     private NewsAdapter adapter;
     private RecyclerView recyclerView;
+    private List<NewsContent> newsList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -94,11 +97,26 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void generateDataList(List<NewsContent> news) {
+        this.newsList = news;
         recyclerView = findViewById(R.id.recycler_view);
-        adapter = new NewsAdapter(this, news);
+        adapter = new NewsAdapter(this, news, this);
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(MainActivity.this);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.addItemDecoration(new DividerItemDecoration(getApplicationContext(),DividerItemDecoration.VERTICAL));
         recyclerView.setAdapter(adapter);
+    }
+
+    @Override
+    public void onViewClick(int position) {
+        Log.d(TAG, "onViewClick: " + position);
+        NewsContent content = newsList.get(position);
+
+        Log.d(TAG, "URI " + content.getWebURL());
+
+        Uri uri = Uri.parse(content.getWebURL());
+
+        Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+
+        startActivity(intent);
     }
 }

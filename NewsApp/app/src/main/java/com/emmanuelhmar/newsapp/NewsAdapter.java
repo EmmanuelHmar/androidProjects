@@ -19,10 +19,12 @@ import static android.content.ContentValues.TAG;
 public class NewsAdapter extends RecyclerView.Adapter<NewsAdapter.NewsViewHolder> {
     private List<NewsContent> newsContents;
     private Context context;
+    private onNoteListener clickListener;
 
-    public NewsAdapter(Context context, List<NewsContent> newsContents) {
+    public NewsAdapter(Context context, List<NewsContent> newsContents, onNoteListener onClickListener) {
         this.context = context;
         this.newsContents = newsContents;
+        this.clickListener = onClickListener;
         Log.d(TAG, "NewsAdapter: " + newsContents.size());
         Log.d(TAG, "NewsAdapter: " + newsContents);
     }
@@ -32,7 +34,7 @@ public class NewsAdapter extends RecyclerView.Adapter<NewsAdapter.NewsViewHolder
     public NewsViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         LayoutInflater layoutInflater = LayoutInflater.from(parent.getContext());
         View view = layoutInflater.inflate(R.layout.news_layout, parent, false);
-        return new NewsViewHolder(view);
+        return new NewsViewHolder(view, clickListener);
     }
 
     @Override
@@ -49,7 +51,7 @@ public class NewsAdapter extends RecyclerView.Adapter<NewsAdapter.NewsViewHolder
         return newsContents.size();
     }
 
-    public class NewsViewHolder extends RecyclerView.ViewHolder {
+    public class NewsViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         @BindView(R.id.title)
         TextView title;
         @BindView(R.id.pillar)
@@ -60,14 +62,27 @@ public class NewsAdapter extends RecyclerView.Adapter<NewsAdapter.NewsViewHolder
         TextView date;
         @BindView(R.id.type)
         TextView type;
+        onNoteListener onNoteListener;
 
         public final View view;
 
-        public NewsViewHolder(@NonNull View itemView) {
+        public NewsViewHolder(@NonNull View itemView, onNoteListener clickListener) {
             super(itemView);
             view = itemView;
+            onNoteListener = clickListener;
+
+            itemView.setOnClickListener(this::onClick);
 
             ButterKnife.bind(this, itemView);
         }
+
+            @Override
+            public void onClick (View view){
+                onNoteListener.onViewClick(getAdapterPosition());
+            }
+        }
+
+        public interface onNoteListener {
+            void onViewClick(int position);
+        }
     }
-}

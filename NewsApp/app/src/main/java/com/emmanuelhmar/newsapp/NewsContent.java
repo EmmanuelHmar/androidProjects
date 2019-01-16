@@ -3,8 +3,6 @@ package com.emmanuelhmar.newsapp;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-import java.net.URI;
-
 public class NewsContent {
 //    @SerializedName("type")
     @SerializedName("type")
@@ -26,12 +24,12 @@ public class NewsContent {
 //    @SerializedName("node_id")
     @Expose
     private String date;
-    @SerializedName("webURL")
+    @SerializedName("webUrl")
 //    @SerializedName("avatar_url")
     @Expose
-    private URI webURL;
+    private String webURL;
 
-    public NewsContent(String type, String sectionName, String pillarName, String webTitle, String date, URI webURL) {
+    public NewsContent(String type, String sectionName, String pillarName, String webTitle, String date, String webURL) {
         this.type = type;
         this.sectionName = sectionName;
         this.pillarName = pillarName;
@@ -61,7 +59,7 @@ public class NewsContent {
         return date.substring(0, date.indexOf("T"));
     }
 
-    public URI getWebURL() {
+    public String getWebURL() {
         return webURL;
     }
 }
