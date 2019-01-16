@@ -26,9 +26,11 @@ public class MainActivity extends AppCompatActivity {
 
         GetDataService service = RetrofitClientInstance.getRetrofitInstance().create(GetDataService.class);
 
-        Call<List<NewsContent>> call = service.contributors("square", "retrofit");
+//        Call<List<NewsContent>> call = service.contributors("square", "retrofit");
+        Call<com.emmanuelhmar.newsapp.Response> call = service.getAllContent();
 
         Log.i(TAG, "onCreate: " + call.request().url());
+        Log.i(TAG, "onCreate: CALL" + call.isExecuted());
 
 //        List<NewsContent> contributors = null;
 //        try {
@@ -40,34 +42,54 @@ public class MainActivity extends AppCompatActivity {
 //            System.out.println(contributor.getPillarName() + " (" + contributor.getSectionName() + ")");
 //        }
 
-        call.enqueue(new Callback<List<NewsContent>>() {
+        call.enqueue(new Callback<com.emmanuelhmar.newsapp.Response>() {
             @Override
-            public void onResponse(Call<List<NewsContent>> call, Response<List<NewsContent>> response) {
-                Log.d(TAG, "onResponse: CALL " + call);
+            public void onResponse(Call<com.emmanuelhmar.newsapp.Response> call, Response<com.emmanuelhmar.newsapp.Response> response) {
 
-                Log.d(TAG, "onResponse: Response " + response.code());
-
-                Log.d(TAG, "onResponse: Body " + response.body());
-//                Log.d(TAG, "onResponse: " + jsonResponse.newsContents);
-//                JSONResponse jsonResponse = JSONResponse.parseJSON(String.valueOf(response.body()));
-
-                List<NewsContent> contributors = null;
+                News news = response.body().getNews();
+                List<NewsContent> contributors = news.getResults();
                 //                    contributors = call.execute().body();
-                contributors = response.body();
                 for (NewsContent contributor : contributors) {
                     System.out.println(contributor.getPillarName() + " (" + contributor.getSectionName() + ")");
                 }
-                generateDataList(response.body());
+                generateDataList(contributors);
             }
 
             @Override
-            public void onFailure(Call<List<NewsContent>> call, Throwable t) {
+            public void onFailure(Call<com.emmanuelhmar.newsapp.Response> call, Throwable t) {
+
                 Log.d(TAG, "onFailure: " + call.request().url());
                 t.printStackTrace();
                 Toast.makeText(MainActivity.this, "Something went wrong", Toast.LENGTH_LONG).show();
             }
+        }
+//        @Override
+//            public void onResponse(Call<List<NewsContent>> call, Response<List<NewsContent>> response) {
+//                Log.d(TAG, "onResponse: CALL " + call);
+//
+//                Log.d(TAG, "onResponse: Response " + response.code());
+//
+//                Log.d(TAG, "onResponse: Body " + response.body());
+////                Log.d(TAG, "onResponse: " + jsonResponse.newsContents);
+////                JSONResponse jsonResponse = JSONResponse.parseJSON(String.valueOf(response.body()));
+//
+//                List<NewsContent> contributors = null;
+//                //                    contributors = call.execute().body();
+//                contributors = response.body();
+//                for (NewsContent contributor : contributors) {
+//                    System.out.println(contributor.getPillarName() + " (" + contributor.getSectionName() + ")");
+//                }
+//                generateDataList(response.body());
+//            }
+//
+//            @Override
+//            public void onFailure(Call<List<NewsContent>> call, Throwable t) {
+//                Log.d(TAG, "onFailure: " + call.request().url());
+//                t.printStackTrace();
+//                Toast.makeText(MainActivity.this, "Something went wrong", Toast.LENGTH_LONG).show();
+//            }
 
-        });
+        );
     }
 
     private void generateDataList(List<NewsContent> news) {

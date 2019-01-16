@@ -11,23 +11,23 @@ public class NewsContent {
     @Expose
     private String type;
     @Expose
-//    @SerializedName("sectionName")
-    @SerializedName("login")
+    @SerializedName("sectionName")
+//    @SerializedName("login")
     private String sectionName;
-//    @SerializedName("pillarName")
-    @SerializedName("site_admin")
+    @SerializedName("pillarName")
+//    @SerializedName("site_admin")
     @Expose
     private String pillarName;
-//    @SerializedName("webTitle")
-    @SerializedName("id")
+    @SerializedName("webTitle")
+//    @SerializedName("id")
     @Expose
     private String webTitle;
-//    @SerializedName("date")
-    @SerializedName("node_id")
+    @SerializedName("date")
+//    @SerializedName("node_id")
     @Expose
     private String date;
-//    @SerializedName("webURL")
-    @SerializedName("avatar_url")
+    @SerializedName("webURL")
+//    @SerializedName("avatar_url")
     @Expose
     private URI webURL;
 
