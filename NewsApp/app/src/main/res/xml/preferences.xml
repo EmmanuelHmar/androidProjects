@@ -8,6 +8,8 @@
         android:title="Switch preference"
         android:summary="Turn this option on or off"/>
 
+    <ListPreference android:key="" />
+
     <EditTextPreference
         android:id="@+id/edit_text_preference"
         android:defaultValue="Default value"

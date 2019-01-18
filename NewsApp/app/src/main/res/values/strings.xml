@@ -1,6 +1,28 @@
 <resources>
     <string name="app_name">NewsApp</string>
 
+
+    <!--Settings for Order-By Preference-->
+    <string name="settings_order_by_label">Order By</string>
+    <string name="settings_order_by_key">order_by</string>
+    <string name="settings_order_by_default">@string/settings_order_by_default_value</string>
+
+    <!--Order-by default values-->
+    <string name="settings_order_by_default_label">None</string>
+    <string name="settings_order_by_default_value" translatable="false" />
+
+    <!--Settings order-by Football Values-->
+    <string name="settings_order_by_football_label">Football</string>
+    <string name="settings_order_by_football_value" translatable="false">Football</string>
+
+    <!--Settings Order-by politics-->
+    <string name="settings_order_by_politics_label">Politics</string>
+    <string name="settings_order_by_politics_value" translatable="false">Politics</string>
+
+    <!--Settings order-by World News-->
+    <string name="settings_order_by_world_news_label">World News</string>
+    <string name="settings_order_by_world_news_value" translatable="false">World news</string>
+
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>
