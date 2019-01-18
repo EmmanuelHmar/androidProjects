@@ -1,9 +1,13 @@
 package com.emmanuelhmar.newsapp;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.Toast;
 
 import java.util.List;
@@ -28,6 +32,18 @@ public class MainActivity extends AppCompatActivity implements NewsAdapter.onNot
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+
+//        Call the values without overriding the current saved settings
+        PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
+
+//        Get the boolean value from the Settings Activity
+        Boolean switchPref = sharedPreferences.getBoolean(SettingsActivity.KEY_PREF_SWITCH, false);
+
+        Log.d(TAG, "MakeText switchpref: ");
+        Toast.makeText(this, switchPref.toString(), Toast.LENGTH_LONG).show();
+
+
         GetDataService service = RetrofitClientInstance.getRetrofitInstance().create(GetDataService.class);
 
 //        Call<List<NewsContent>> call = service.contributors("square", "retrofit");
@@ -36,63 +52,28 @@ public class MainActivity extends AppCompatActivity implements NewsAdapter.onNot
         Log.i(TAG, "onCreate: " + call.request().url());
         Log.i(TAG, "onCreate: CALL" + call.isExecuted());
 
-//        List<NewsContent> contributors = null;
-//        try {
-//            contributors = call.execute().body();
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//        for (NewsContent contributor : contributors) {
-//            System.out.println(contributor.getPillarName() + " (" + contributor.getSectionName() + ")");
-//        }
-
+//        Call retrofit async
         call.enqueue(new Callback<com.emmanuelhmar.newsapp.Response>() {
-            @Override
-            public void onResponse(Call<com.emmanuelhmar.newsapp.Response> call, Response<com.emmanuelhmar.newsapp.Response> response) {
+                         @Override
+                         public void onResponse(Call<com.emmanuelhmar.newsapp.Response> call, Response<com.emmanuelhmar.newsapp.Response> response) {
 
-                News news = response.body().getNews();
-                List<NewsContent> contributors = news.getResults();
-                //                    contributors = call.execute().body();
-                for (NewsContent contributor : contributors) {
-                    System.out.println(contributor.getPillarName() + " (" + contributor.getSectionName() + ")");
-                }
-                generateDataList(contributors);
-            }
+                             News news = response.body().getNews();
+                             List<NewsContent> contributors = news.getResults();
+                             //                    contributors = call.execute().body();
+                             for (NewsContent contributor : contributors) {
+                                 System.out.println(contributor.getPillarName() + " (" + contributor.getSectionName() + ")");
+                             }
+                             generateDataList(contributors);
+                         }
 
-            @Override
-            public void onFailure(Call<com.emmanuelhmar.newsapp.Response> call, Throwable t) {
+                         @Override
+                         public void onFailure(Call<com.emmanuelhmar.newsapp.Response> call, Throwable t) {
 
-                Log.d(TAG, "onFailure: " + call.request().url());
-                t.printStackTrace();
-                Toast.makeText(MainActivity.this, "Something went wrong", Toast.LENGTH_LONG).show();
-            }
-        }
-//        @Override
-//            public void onResponse(Call<List<NewsContent>> call, Response<List<NewsContent>> response) {
-//                Log.d(TAG, "onResponse: CALL " + call);
-//
-//                Log.d(TAG, "onResponse: Response " + response.code());
-//
-//                Log.d(TAG, "onResponse: Body " + response.body());
-////                Log.d(TAG, "onResponse: " + jsonResponse.newsContents);
-////                JSONResponse jsonResponse = JSONResponse.parseJSON(String.valueOf(response.body()));
-//
-//                List<NewsContent> contributors = null;
-//                //                    contributors = call.execute().body();
-//                contributors = response.body();
-//                for (NewsContent contributor : contributors) {
-//                    System.out.println(contributor.getPillarName() + " (" + contributor.getSectionName() + ")");
-//                }
-//                generateDataList(response.body());
-//            }
-//
-//            @Override
-//            public void onFailure(Call<List<NewsContent>> call, Throwable t) {
-//                Log.d(TAG, "onFailure: " + call.request().url());
-//                t.printStackTrace();
-//                Toast.makeText(MainActivity.this, "Something went wrong", Toast.LENGTH_LONG).show();
-//            }
-
+                             Log.d(TAG, "onFailure: " + call.request().url());
+                             t.printStackTrace();
+                             Toast.makeText(MainActivity.this, "Something went wrong", Toast.LENGTH_LONG).show();
+                         }
+                     }
         );
     }
 
@@ -102,8 +83,27 @@ public class MainActivity extends AppCompatActivity implements NewsAdapter.onNot
         adapter = new NewsAdapter(this, news, this);
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(MainActivity.this);
         recyclerView.setLayoutManager(layoutManager);
-        recyclerView.addItemDecoration(new DividerItemDecoration(getApplicationContext(),DividerItemDecoration.VERTICAL));
+        recyclerView.addItemDecoration(new DividerItemDecoration(getApplicationContext(), DividerItemDecoration.VERTICAL));
         recyclerView.setAdapter(adapter);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.main, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+
+        if (id == R.id.action_settings) {
+            Intent intent = new Intent(this, SettingsActivity.class);
+            startActivity(intent);
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 
     @Override

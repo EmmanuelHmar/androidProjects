@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <SwitchPreference
+        android:id="@+id/switch_preference"
+        android:defaultValue="false"
+        android:key="example_switch"
+        android:title="Switch preference"
+        android:summary="Turn this option on or off"/>
+
+    <EditTextPreference
+        android:id="@+id/edit_text_preference"
+        android:defaultValue="Default value"
+        android:key="edit_text_preference_1"
+        android:selectAllOnFocus="true"
+        android:singleLine="true"
+        android:title="Edit text preference" />
+</PreferenceScreen>
