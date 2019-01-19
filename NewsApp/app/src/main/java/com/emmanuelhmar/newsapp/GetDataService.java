@@ -2,10 +2,15 @@ package com.emmanuelhmar.newsapp;
 
 import retrofit2.Call;
 import retrofit2.http.GET;
+import retrofit2.http.Query;
 
 public interface GetDataService {
-    @GET("/search?api-key=test")
-    public Call<Response> getAllContent();
+    //    sections?q=world&api-key=test
+//    @GET("/search?api-key=test")
+//    @GET("/{section}api-key=test")
+    @GET("/search")
+    Call<Response> getAllContent(@Query("order-by") String orderBy,
+                                        @Query("section") String sectionName, @Query("api-key") String key);
 
 //    @GET("/repos/{owner}/{repo}/contributors")
 //    Call<List<NewsContent>> contributors(

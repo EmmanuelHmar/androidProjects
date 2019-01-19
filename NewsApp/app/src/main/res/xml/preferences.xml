@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.preference.PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
     <SwitchPreference
         android:id="@+id/switch_preference"
@@ -15,6 +15,14 @@
         android:key="@string/settings_order_by_key"
         android:title="@string/settings_order_by_label" />
 
+    <ListPreference
+        android:defaultValue="@string/settings_section_default_value"
+        android:entries="@array/settings_section_labels"
+        android:entryValues="@array/settings_section_values"
+        android:key="@string/settings_section_key"
+        android:title="@string/settings_section_label" />
+
+
     <EditTextPreference
         android:id="@+id/edit_text_preference"
         android:defaultValue="Default value"
@@ -22,4 +30,4 @@
         android:selectAllOnFocus="true"
         android:singleLine="true"
         android:title="Edit text preference" />
-</androidx.preference.PreferenceScreen>
+</PreferenceScreen>

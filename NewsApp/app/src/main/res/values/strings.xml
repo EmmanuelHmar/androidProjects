@@ -1,28 +1,47 @@
 <resources>
     <string name="app_name">NewsApp</string>
 
+    <!--Settings for section preference-->
+    <string name="settings_section_label">Sort by Section</string>
+    <string name="settings_section_key">section</string>
+    <string name="settings_section_default">@string/settings_section_default_value</string>
+
+    <!--Section by default values-->
+    <string name="settings_section_default_label">None</string>
+    <string name="settings_section_default_value" translatable="false" />
+
+    <!--Settings order-by Football Values-->
+    <string name="settings_section_football_label">Football</string>
+    <string name="settings_section_football_value" translatable="false">football</string>
+
+    <!--Settings Order-by politics-->
+    <string name="settings_section_politics_label">Politics</string>
+    <string name="settings_section_politics_value" translatable="false">politics</string>
+
+    <!--Settings order-by World News-->
+    <string name="settings_section_world_news_label">World News</string>
+    <string name="settings_section_world_news_value" translatable="false">world</string>
+
 
     <!--Settings for Order-By Preference-->
     <string name="settings_order_by_label">Order By</string>
-    <string name="settings_order_by_key">order_by</string>
+    <string name="settings_order_by_key" translatable="false">order_by</string>
     <string name="settings_order_by_default">@string/settings_order_by_default_value</string>
 
-    <!--Order-by default values-->
+    <!--Section default values-->
     <string name="settings_order_by_default_label">None</string>
-    <string name="settings_order_by_default_value" translatable="false" />
+    <string name="settings_order_by_default_value" />
 
-    <!--Settings order-by Football Values-->
-    <string name="settings_order_by_football_label">Football</string>
-    <string name="settings_order_by_football_value" translatable="false">Football</string>
+    <!--Settings section newest-->
+    <string name="settings_order_by_newest_label">Newest</string>
+    <string name="settings_order_by_newest_value">newest</string>
 
-    <!--Settings Order-by politics-->
-    <string name="settings_order_by_politics_label">Politics</string>
-    <string name="settings_order_by_politics_value" translatable="false">Politics</string>
+    <!--Settings section oldest-->
+    <string name="settings_order_by_oldest_label">Oldest</string>
+    <string name="settings_order_by_oldest_value">oldest</string>
 
-    <!--Settings order-by World News-->
-    <string name="settings_order_by_world_news_label">World News</string>
-    <string name="settings_order_by_world_news_value" translatable="false">World news</string>
+    <!--Settings section oldest-->
+    <string name="settings_order_by_relevance_label">Relevance</string>
+    <string name="settings_order_by_relevance_value">relevance</string>
 
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

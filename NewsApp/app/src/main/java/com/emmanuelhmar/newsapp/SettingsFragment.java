@@ -21,10 +21,14 @@ public class SettingsFragment extends PreferenceFragmentCompat implements androi
 
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
-        setPreferencesFromResource(R.xml.preferences,rootKey);
+        setPreferencesFromResource(R.xml.preferences, rootKey);
 
+//        Set the summary using the list preference option selected
         androidx.preference.Preference orderBy = findPreference("order_by");
         bindPreferenceSummaryToValue(orderBy);
+
+        androidx.preference.Preference section = findPreference("section");
+        bindPreferenceSummaryToValue(section);
 
     }
 
@@ -50,9 +54,9 @@ public class SettingsFragment extends PreferenceFragmentCompat implements androi
             if (prefIndex >= 0) {
                 CharSequence[] labels = listPreference.getEntries();
                 preference.setSummary(labels[prefIndex]);
-            } else {
-                preference.setSummary(stringValue);
             }
+        } else {
+            preference.setSummary(stringValue);
         }
 
         return true;

@@ -40,20 +40,50 @@ public class MainActivity extends AppCompatActivity implements NewsAdapter.onNot
 //        Get the boolean value from the Settings Activity
         Boolean switchPref = sharedPreferences.getBoolean(SettingsActivity.KEY_PREF_SWITCH, false);
 
+        String sectionSetting = sharedPreferences.getString(getString(R.string.settings_order_by_default_label),
+                getString(R.string.settings_order_by_default_value));
+
+        assert sectionSetting != null;
+        if (sectionSetting.isEmpty()) {
+            sectionSetting = null;
+        }
+//        Get the value of the listPreference section from the setting page
+        String orderBySetting = sharedPreferences.getString(getString(R.string.settings_order_by_key),
+                getString(R.string.settings_order_by_default));
+
+//        If orderBySetting if empty, pass null to not pass the orderBySetting query
+        assert orderBySetting != null;
+        if (orderBySetting.isEmpty()) {
+            orderBySetting = null;
+        }
+
+        String editText = sharedPreferences.getString("edit_text_preference_1", API_KEY);
+
+        Log.d(TAG, "EDIT text: " + editText);
+
         Log.d(TAG, "MakeText switchpref: ");
         Toast.makeText(this, switchPref.toString(), Toast.LENGTH_LONG).show();
-
 
         GetDataService service = RetrofitClientInstance.getRetrofitInstance().create(GetDataService.class);
 
 //        Call<List<NewsContent>> call = service.contributors("square", "retrofit");
-        Call<com.emmanuelhmar.newsapp.Response> call = service.getAllContent();
+        Call<com.emmanuelhmar.newsapp.Response> call = service.getAllContent(orderBySetting, sectionSetting, API_KEY);
+
+        Log.i(TAG, "SectionNamepref: " + orderBySetting);
 
         Log.i(TAG, "onCreate: " + call.request().url());
         Log.i(TAG, "onCreate: CALL" + call.isExecuted());
 
 //        Call retrofit async
         call.enqueue(new Callback<com.emmanuelhmar.newsapp.Response>() {
+                         @Override
+                         public void onFailure(Call<com.emmanuelhmar.newsapp.Response> call, Throwable t) {
+
+                             Log.d(TAG, "onFailure: " + call.request().url());
+                             t.printStackTrace();
+                             Toast.makeText(MainActivity.this, "Something went wrong", Toast.LENGTH_LONG).show();
+                         }
+
                          @Override
                          public void onResponse(Call<com.emmanuelhmar.newsapp.Response> call, Response<com.emmanuelhmar.newsapp.Response> response) {
 
@@ -64,14 +94,6 @@ public class MainActivity extends AppCompatActivity implements NewsAdapter.onNot
                                  System.out.println(contributor.getPillarName() + " (" + contributor.getSectionName() + ")");
                              }
                              generateDataList(contributors);
-                         }
-
-                         @Override
-                         public void onFailure(Call<com.emmanuelhmar.newsapp.Response> call, Throwable t) {
-
-                             Log.d(TAG, "onFailure: " + call.request().url());
-                             t.printStackTrace();
-                             Toast.makeText(MainActivity.this, "Something went wrong", Toast.LENGTH_LONG).show();
                          }
                      }
         );
