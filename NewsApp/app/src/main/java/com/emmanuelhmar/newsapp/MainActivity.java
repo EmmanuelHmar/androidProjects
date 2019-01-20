@@ -12,6 +12,8 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import java.util.List;
@@ -21,6 +23,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -34,11 +38,18 @@ public class MainActivity extends AppCompatActivity implements NewsAdapter.onNot
     private LinearLayoutManager layoutManager;
     private Parcelable state;
     private final static String BUNDLE_LAYOUT = "recycler_layout";
+    private boolean isConnected;
+    @BindView(R.id.search_button)
+    Button button;
+    @BindView(R.id.search_bar)
+    EditText editText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        ButterKnife.bind(this);
+
 
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 
@@ -51,24 +62,34 @@ public class MainActivity extends AppCompatActivity implements NewsAdapter.onNot
         NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
 
 //        True if connected, False if not
-        boolean isConnected = activeNetwork != null && activeNetwork.isConnected();
+        isConnected = activeNetwork != null && activeNetwork.isConnected();
 
-//
+        GetDataService service = RetrofitClientInstance.getRetrofitInstance().create(GetDataService.class);
 
+        String orderBySetting = getPrefSettings(sharedPreferences, "orderBy");
+        String sectionSetting = getPrefSettings(sharedPreferences, "section");
+
+        runTheNetwork(service, null, orderBySetting, sectionSetting);
+
+//        Run this when button is clicked
+        button.setOnClickListener(view -> {
+            String search = editText.getText().toString();
+
+            if (search.isEmpty()) {
+                search = null;
+            }
+
+            runTheNetwork(service, search, orderBySetting, sectionSetting);
+        });
+    }
+
+    private void runTheNetwork(GetDataService service, String search, String orderBySetting, String sectionSetting) {
+
+//        Internet is Connected then proceed
         if (isConnected) {
-
-            GetDataService service = RetrofitClientInstance.getRetrofitInstance().create(GetDataService.class);
-
-            String orderBySetting = getPrefSettings(sharedPreferences, "orderBy");
-            String sectionSetting = getPrefSettings(sharedPreferences, "section");
-
-            Toast.makeText(this, sectionSetting, Toast.LENGTH_LONG).show();
-
-//        Call<List<NewsContent>> call = service.contributors("square", "retrofit");
-            Call<com.emmanuelhmar.newsapp.Response> call = service.getAllContent(orderBySetting, sectionSetting, API_KEY);
+            Call<com.emmanuelhmar.newsapp.Response> call = service.getAllContent(search, orderBySetting, sectionSetting, API_KEY);
 
             Log.i(TAG, "onCreate: " + call.request().url());
-
 
 //        Call retrofit async
             call.enqueue(new Callback<com.emmanuelhmar.newsapp.Response>() {
@@ -94,8 +115,9 @@ public class MainActivity extends AppCompatActivity implements NewsAdapter.onNot
                          }
             );
         } else {
-            Toast.makeText(this, "No internet connection", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "No internet connection", Toast.LENGTH_LONG).show();
         }
+
     }
 
     private void generateDataList(List<NewsContent> news) {

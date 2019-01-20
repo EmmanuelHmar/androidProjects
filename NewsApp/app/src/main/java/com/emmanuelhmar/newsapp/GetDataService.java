@@ -9,7 +9,7 @@ public interface GetDataService {
 //    @GET("/search?api-key=test")
 //    @GET("/{section}api-key=test")
     @GET("/search")
-    Call<Response> getAllContent(@Query("order-by") String orderBy,
+    Call<Response> getAllContent(@Query("q") String searchTerm, @Query("order-by") String orderBy,
                                         @Query("section") String sectionName, @Query("api-key") String key);
 
 //    @GET("/repos/{owner}/{repo}/contributors")
