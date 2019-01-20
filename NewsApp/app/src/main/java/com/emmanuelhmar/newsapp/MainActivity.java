@@ -43,6 +43,7 @@ public class MainActivity extends AppCompatActivity implements NewsAdapter.onNot
     Button button;
     @BindView(R.id.search_bar)
     EditText editText;
+    private final String SEARCH_TERM = "search_term";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,7 +59,6 @@ public class MainActivity extends AppCompatActivity implements NewsAdapter.onNot
 
 //        Check if the device is connected to the internet
         ConnectivityManager cm = (ConnectivityManager) getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
-
         NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
 
 //        True if connected, False if not
@@ -66,24 +66,35 @@ public class MainActivity extends AppCompatActivity implements NewsAdapter.onNot
 
         GetDataService service = RetrofitClientInstance.getRetrofitInstance().create(GetDataService.class);
 
+//       Retrieve the terms from the shared preferences
         String orderBySetting = getPrefSettings(sharedPreferences, "orderBy");
         String sectionSetting = getPrefSettings(sharedPreferences, "section");
+        String search = sharedPreferences.getString(SEARCH_TERM, "null");
 
-        runTheNetwork(service, null, orderBySetting, sectionSetting);
+//        If the search term from the sharedPreferences is not null, then display it in the search bar
+        if (search != null) {
+            editText.setText(search);
+        }
+
+        runTheNetwork(service, search, orderBySetting, sectionSetting);
 
 //        Run this when button is clicked
         button.setOnClickListener(view -> {
-            String search = editText.getText().toString();
+            String str = editText.getText().toString();
 
-            if (search.isEmpty()) {
-                search = null;
+//            Set the string in the sharedPreferences
+            sharedPreferences.edit().putString(SEARCH_TERM, str).apply();
+
+            if (str.isEmpty()) {
+                str = null;
             }
 
-            runTheNetwork(service, search, orderBySetting, sectionSetting);
+            runTheNetwork(service, str, orderBySetting, sectionSetting);
         });
     }
 
     private void runTheNetwork(GetDataService service, String search, String orderBySetting, String sectionSetting) {
+        Log.d(TAG, "runTheNetwork: " + search);
 
 //        Internet is Connected then proceed
         if (isConnected) {
@@ -105,11 +116,9 @@ public class MainActivity extends AppCompatActivity implements NewsAdapter.onNot
                              public void onResponse(Call<com.emmanuelhmar.newsapp.Response> call, Response<com.emmanuelhmar.newsapp.Response> response) {
 
                                  News news = response.body().getNews();
+
                                  List<NewsContent> contributors = news.getResults();
-                                 //                    contributors = call.execute().body();
-                                 for (NewsContent contributor : contributors) {
-                                     System.out.println(contributor.getPillarName() + " (" + contributor.getSectionName() + ")");
-                                 }
+
                                  generateDataList(contributors);
                              }
                          }
