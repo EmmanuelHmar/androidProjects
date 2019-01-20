@@ -39,6 +39,8 @@ public class MainActivity extends AppCompatActivity implements NewsAdapter.onNot
     private Parcelable state;
     private final static String BUNDLE_LAYOUT = "recycler_layout";
     private boolean isConnected;
+    private
+    SharedPreferences sharedPreferences;
     @BindView(R.id.search_button)
     Button button;
     @BindView(R.id.search_bar)
@@ -51,8 +53,7 @@ public class MainActivity extends AppCompatActivity implements NewsAdapter.onNot
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
 
-
-        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 
 //        Call the values without overriding the current saved settings
         PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
@@ -132,7 +133,7 @@ public class MainActivity extends AppCompatActivity implements NewsAdapter.onNot
     private void generateDataList(List<NewsContent> news) {
         this.newsList = news;
         recyclerView = findViewById(R.id.recycler_view);
-        adapter = new NewsAdapter(this, news, this);
+        adapter = new NewsAdapter( news, this);
         layoutManager = new LinearLayoutManager(MainActivity.this);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.addItemDecoration(new DividerItemDecoration(getApplicationContext(), DividerItemDecoration.VERTICAL));
@@ -192,17 +193,10 @@ public class MainActivity extends AppCompatActivity implements NewsAdapter.onNot
     }
 
     @Override
-    protected void onPause() {
-        Log.d(TAG, "onPause: ");
-        super.onPause();
-
-    }
-
-    @Override
-    protected void onResume() {
-        Log.d(TAG, "onResume: ");
-        super.onResume();
-
+    protected void onDestroy() {
+        Log.d(TAG, "onDestroy: " + "DESTR");
+        super.onDestroy();
+//        sharedPreferences.edit().putString(SEARCH_TERM, null).apply();
     }
 
     @Override

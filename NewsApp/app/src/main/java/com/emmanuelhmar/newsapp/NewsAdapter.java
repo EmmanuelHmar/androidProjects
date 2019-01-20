@@ -1,7 +1,5 @@
 package com.emmanuelhmar.newsapp;
 
-import android.content.Context;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,19 +12,13 @@ import androidx.recyclerview.widget.RecyclerView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-import static android.content.ContentValues.TAG;
-
 public class NewsAdapter extends RecyclerView.Adapter<NewsAdapter.NewsViewHolder> {
     private List<NewsContent> newsContents;
-    private Context context;
     private onNoteListener clickListener;
 
-    public NewsAdapter(Context context, List<NewsContent> newsContents, onNoteListener onClickListener) {
-        this.context = context;
+    public NewsAdapter(List<NewsContent> newsContents, onNoteListener onClickListener) {
         this.newsContents = newsContents;
         this.clickListener = onClickListener;
-        Log.d(TAG, "NewsAdapter: " + newsContents.size());
-        Log.d(TAG, "NewsAdapter: " + newsContents);
     }
 
     @NonNull

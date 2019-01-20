@@ -17,3 +17,5 @@ Connect to the internet, using Guardian news API, get news, and be able to sort 
 - Retrofit
 - GSON
 - Butterknife
+
+![](newsapp.gif)
