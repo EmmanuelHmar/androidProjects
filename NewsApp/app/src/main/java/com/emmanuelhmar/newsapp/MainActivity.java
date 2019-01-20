@@ -1,9 +1,13 @@
 package com.emmanuelhmar.newsapp;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.Menu;
@@ -12,6 +16,7 @@ import android.widget.Toast;
 
 import java.util.List;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -26,6 +31,9 @@ public class MainActivity extends AppCompatActivity implements NewsAdapter.onNot
     private NewsAdapter adapter;
     private RecyclerView recyclerView;
     private List<NewsContent> newsList;
+    private LinearLayoutManager layoutManager;
+    private Parcelable state;
+    private final static String BUNDLE_LAYOUT = "recycler_layout";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,84 +45,78 @@ public class MainActivity extends AppCompatActivity implements NewsAdapter.onNot
 //        Call the values without overriding the current saved settings
         PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
 
-//        Get the boolean value from the Settings Activity
-        Boolean switchPref = sharedPreferences.getBoolean(SettingsActivity.KEY_PREF_SWITCH, false);
+//        Check if the device is connected to the internet
+        ConnectivityManager cm = (ConnectivityManager) getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
 
-        String sectionSetting = sharedPreferences.getString(getString(R.string.settings_order_by_default_label),
-                getString(R.string.settings_order_by_default_value));
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
 
-        assert sectionSetting != null;
-        if (sectionSetting.isEmpty()) {
-            sectionSetting = null;
-        }
-//        Get the value of the listPreference section from the setting page
-        String orderBySetting = sharedPreferences.getString(getString(R.string.settings_order_by_key),
-                getString(R.string.settings_order_by_default));
+//        True if connected, False if not
+        boolean isConnected = activeNetwork != null && activeNetwork.isConnected();
 
-//        If orderBySetting if empty, pass null to not pass the orderBySetting query
-        assert orderBySetting != null;
-        if (orderBySetting.isEmpty()) {
-            orderBySetting = null;
-        }
+//
 
-        String editText = sharedPreferences.getString("edit_text_preference_1", API_KEY);
+        if (isConnected) {
 
-        Log.d(TAG, "EDIT text: " + editText);
+            GetDataService service = RetrofitClientInstance.getRetrofitInstance().create(GetDataService.class);
 
-        Log.d(TAG, "MakeText switchpref: ");
-        Toast.makeText(this, switchPref.toString(), Toast.LENGTH_LONG).show();
+            String orderBySetting = getPrefSettings(sharedPreferences, "orderBy");
+            String sectionSetting = getPrefSettings(sharedPreferences, "section");
 
-        GetDataService service = RetrofitClientInstance.getRetrofitInstance().create(GetDataService.class);
+            Toast.makeText(this, sectionSetting, Toast.LENGTH_LONG).show();
 
 //        Call<List<NewsContent>> call = service.contributors("square", "retrofit");
-        Call<com.emmanuelhmar.newsapp.Response> call = service.getAllContent(orderBySetting, sectionSetting, API_KEY);
+            Call<com.emmanuelhmar.newsapp.Response> call = service.getAllContent(orderBySetting, sectionSetting, API_KEY);
 
-        Log.i(TAG, "SectionNamepref: " + orderBySetting);
+            Log.i(TAG, "onCreate: " + call.request().url());
 
-        Log.i(TAG, "onCreate: " + call.request().url());
-        Log.i(TAG, "onCreate: CALL" + call.isExecuted());
 
 //        Call retrofit async
-        call.enqueue(new Callback<com.emmanuelhmar.newsapp.Response>() {
-                         @Override
-                         public void onFailure(Call<com.emmanuelhmar.newsapp.Response> call, Throwable t) {
+            call.enqueue(new Callback<com.emmanuelhmar.newsapp.Response>() {
+                             @Override
+                             public void onFailure(Call<com.emmanuelhmar.newsapp.Response> call, Throwable t) {
 
-                             Log.d(TAG, "onFailure: " + call.request().url());
-                             t.printStackTrace();
-                             Toast.makeText(MainActivity.this, "Something went wrong", Toast.LENGTH_LONG).show();
-                         }
-
-                         @Override
-                         public void onResponse(Call<com.emmanuelhmar.newsapp.Response> call, Response<com.emmanuelhmar.newsapp.Response> response) {
-
-                             News news = response.body().getNews();
-                             List<NewsContent> contributors = news.getResults();
-                             //                    contributors = call.execute().body();
-                             for (NewsContent contributor : contributors) {
-                                 System.out.println(contributor.getPillarName() + " (" + contributor.getSectionName() + ")");
+                                 Log.d(TAG, "onFailure: " + call.request().url());
+                                 t.printStackTrace();
+                                 Toast.makeText(MainActivity.this, "Something went wrong", Toast.LENGTH_LONG).show();
                              }
-                             generateDataList(contributors);
+
+                             @Override
+                             public void onResponse(Call<com.emmanuelhmar.newsapp.Response> call, Response<com.emmanuelhmar.newsapp.Response> response) {
+
+                                 News news = response.body().getNews();
+                                 List<NewsContent> contributors = news.getResults();
+                                 //                    contributors = call.execute().body();
+                                 for (NewsContent contributor : contributors) {
+                                     System.out.println(contributor.getPillarName() + " (" + contributor.getSectionName() + ")");
+                                 }
+                                 generateDataList(contributors);
+                             }
                          }
-                     }
-        );
+            );
+        } else {
+            Toast.makeText(this, "No internet connection", Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void generateDataList(List<NewsContent> news) {
         this.newsList = news;
         recyclerView = findViewById(R.id.recycler_view);
         adapter = new NewsAdapter(this, news, this);
-        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(MainActivity.this);
+        layoutManager = new LinearLayoutManager(MainActivity.this);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.addItemDecoration(new DividerItemDecoration(getApplicationContext(), DividerItemDecoration.VERTICAL));
         recyclerView.setAdapter(adapter);
+        layoutManager.onRestoreInstanceState(state);
     }
 
+    //    Create the Options Menu
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.main, menu);
         return true;
     }
 
+    //    When the menu options are selected
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
@@ -128,6 +130,67 @@ public class MainActivity extends AppCompatActivity implements NewsAdapter.onNot
         return super.onOptionsItemSelected(item);
     }
 
+    private String getPrefSettings(SharedPreferences sharedPreferences, String setting) {
+
+        switch (setting) {
+            case "section":
+                String sectionSetting = sharedPreferences.getString(getString(R.string.settings_section_key),
+                        getString(R.string.settings_section_default));
+                assert sectionSetting != null;
+                if (sectionSetting.isEmpty()) {
+                    sectionSetting = null;
+                }
+                return sectionSetting;
+            case "orderBy":
+//        Get the value of the listPreference section from the setting page
+                String orderBySetting = sharedPreferences.getString(getString(R.string.settings_order_by_key),
+                        getString(R.string.settings_order_by_default));
+
+//        If orderBySetting if empty, pass null to not pass the orderBySetting query
+                assert orderBySetting != null;
+                if (orderBySetting.isEmpty()) {
+                    orderBySetting = null;
+                }
+                return orderBySetting;
+            default:
+                break;
+
+        }
+
+        return null;
+    }
+
+    @Override
+    protected void onPause() {
+        Log.d(TAG, "onPause: ");
+        super.onPause();
+
+    }
+
+    @Override
+    protected void onResume() {
+        Log.d(TAG, "onResume: ");
+        super.onResume();
+
+    }
+
+    @Override
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putParcelable(BUNDLE_LAYOUT,
+                layoutManager.onSaveInstanceState());
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+
+        if (savedInstanceState != null) {
+            state = savedInstanceState.getParcelable(BUNDLE_LAYOUT);
+        }
+    }
+
+    //    Implemented a View Clicklistener for RecyclerView
     @Override
     public void onViewClick(int position) {
         Log.d(TAG, "onViewClick: " + position);
