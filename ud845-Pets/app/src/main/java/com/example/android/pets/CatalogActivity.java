@@ -15,6 +15,7 @@
  */
 package com.example.android.pets;
 
+import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -36,13 +37,12 @@ import com.example.android.pets.data.PetDbHelper;
 public class CatalogActivity extends AppCompatActivity {
 
     private static final String TAG = CatalogActivity.class.getSimpleName();
+    PetDbHelper dbHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_catalog);
-
-//        displayDatabaseInfo();
 
         // Setup FAB to open EditorActivity
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
@@ -54,8 +54,14 @@ public class CatalogActivity extends AppCompatActivity {
             }
         });
 
-        PetDbHelper dbHelper = new PetDbHelper(this);
-        SQLiteDatabase db = dbHelper.getReadableDatabase();
+        dbHelper = new PetDbHelper(this);
+        displayDatabaseInfo();
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        displayDatabaseInfo();
     }
 
     @Override
@@ -66,13 +72,31 @@ public class CatalogActivity extends AppCompatActivity {
         return true;
     }
 
+    private void insertPet() {
+//        Get the database in write mode
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+
+//        Create a map of values, where column name are keys (& values)
+
+        ContentValues values = new ContentValues();
+        values.put(PetContract.PetEntry.COLUMN_PET_NAME, "Toto");
+        values.put(PetContract.PetEntry.COLOMN_PET_BREED, "Terrier");
+        values.put(PetContract.PetEntry.COLUMN_PET_GENDER, PetContract.PetEntry.GENDER_MALE);
+        values.put(PetContract.PetEntry.COLUMN_PET_WEIGHT, 7);
+
+        long newRowId = db.insert(PetContract.PetEntry.TABLE_NAME, null, values);
+
+        Log.d(TAG, "insertPet: " + newRowId);
+    }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // User clicked on a menu option in the app bar overflow menu
         switch (item.getItemId()) {
             // Respond to a click on the "Insert dummy data" menu option
             case R.id.action_insert_dummy_data:
-                // Do nothing for now
+                insertPet();
+                displayDatabaseInfo();
                 return true;
             // Respond to a click on the "Delete all entries" menu option
             case R.id.action_delete_all_entries:
@@ -83,10 +107,8 @@ public class CatalogActivity extends AppCompatActivity {
     }
 
     private void displayDatabaseInfo() {
-//        Create an instance of Pet helper class
-        PetDbHelper dbHelper = new PetDbHelper(this);
 
-
+//        Get the database in read mode
         SQLiteDatabase db = dbHelper.getReadableDatabase();
 
         Cursor cursor = db.rawQuery("SELECT * FROM " + PetContract.PetEntry.TABLE_NAME,null);
@@ -99,7 +121,6 @@ public class CatalogActivity extends AppCompatActivity {
         }finally {
             cursor.close();
         }
-
 
     }
 }
