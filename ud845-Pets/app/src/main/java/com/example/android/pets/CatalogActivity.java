@@ -16,22 +16,33 @@
 package com.example.android.pets;
 
 import android.content.Intent;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.TextView;
+
+import com.example.android.pets.data.PetContract;
+import com.example.android.pets.data.PetDbHelper;
 
 /**
  * Displays list of pets that were entered and stored in the app.
  */
 public class CatalogActivity extends AppCompatActivity {
 
+    private static final String TAG = CatalogActivity.class.getSimpleName();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_catalog);
+
+//        displayDatabaseInfo();
 
         // Setup FAB to open EditorActivity
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
@@ -42,6 +53,9 @@ public class CatalogActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+
+        PetDbHelper dbHelper = new PetDbHelper(this);
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
     }
 
     @Override
@@ -66,5 +80,26 @@ public class CatalogActivity extends AppCompatActivity {
                 return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void displayDatabaseInfo() {
+//        Create an instance of Pet helper class
+        PetDbHelper dbHelper = new PetDbHelper(this);
+
+
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+
+        Cursor cursor = db.rawQuery("SELECT * FROM " + PetContract.PetEntry.TABLE_NAME,null);
+
+        Log.d(TAG, "displayDatabaseInfo: " + cursor.toString());
+
+        try {
+            TextView displayView = (TextView) findViewById(R.id.text_view_pet);
+            displayView.setText("Number of rows in pets database table: " + cursor.getCount());
+        }finally {
+            cursor.close();
+        }
+
+
     }
 }
