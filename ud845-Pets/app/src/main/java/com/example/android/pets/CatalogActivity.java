@@ -108,11 +108,6 @@ public class CatalogActivity extends AppCompatActivity {
 
     private void displayDatabaseInfo() {
 
-//        Get the database in read mode
-        SQLiteDatabase db = dbHelper.getReadableDatabase();
-
-//        Cursor cursor = db.rawQuery("SELECT * FROM " + PetContract.PetEntry.TABLE_NAME,null);
-
 //        This projection will specify which column from the database we will actually use in the query
         String[] projection = {PetContract.PetEntry._ID, PetContract.PetEntry.COLUMN_PET_NAME,
                 PetContract.PetEntry.COLUMN_PET_BREED, PetContract.PetEntry.COLUMN_PET_GENDER,
@@ -125,10 +120,12 @@ public class CatalogActivity extends AppCompatActivity {
 //        Sort the results
         String sortOrder = PetContract.PetEntry.TABLE_NAME + " DESC";
 
-//        Get it as rows in the databse
-        Cursor cursor = db.query(PetContract.PetEntry.TABLE_NAME, projection, null, null, null
-                , null
-                , null);
+        Cursor cursor = getContentResolver().query(PetContract.PetEntry.CONTENT_URI, projection, null, null, null);
+
+//        Get it as rows in the database
+//        Cursor cursor = db.query(PetContract.PetEntry.TABLE_NAME, projection, null, null, null
+//                , null
+//                , null);
 
 
         Log.d(TAG, "displayDatabaseInfo: " + cursor.toString());

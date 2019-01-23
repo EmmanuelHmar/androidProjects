@@ -15,8 +15,9 @@
  */
 package com.example.android.pets;
 
+import android.content.ContentUris;
 import android.content.ContentValues;
-import android.database.sqlite.SQLiteDatabase;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
 import android.support.v7.app.AppCompatActivity;
@@ -32,7 +33,6 @@ import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.example.android.pets.data.PetContract;
-import com.example.android.pets.data.PetDbHelper;
 
 /**
  * Allows user to create a new pet or edit an existing one.
@@ -120,21 +120,25 @@ public class EditorActivity extends AppCompatActivity {
     }
 
     private void insertPets() {
-        PetDbHelper dbHelper = new PetDbHelper(this);
-        SQLiteDatabase db = dbHelper.getWritableDatabase();
 
         String namePet = mNameEditText.getText().toString().trim();
         String breedPet = mBreedEditText.getText().toString().trim();
         int genderPet = mGender;
         int weightPet = Integer.parseInt(mWeightEditText.getText().toString().trim());
 
+//        Content Values key-pair
         ContentValues values = new ContentValues();
         values.put(PetContract.PetEntry.COLUMN_PET_NAME, namePet);
         values.put(PetContract.PetEntry.COLUMN_PET_BREED, breedPet);
         values.put(PetContract.PetEntry.COLUMN_PET_GENDER, genderPet);
         values.put(PetContract.PetEntry.COLUMN_PET_WEIGHT, weightPet);
 
-        long newRowID = db.insert(PetContract.PetEntry.TABLE_NAME, null, values);
+//        Return the uri after running the insert query
+        Uri uri = getContentResolver().insert(PetContract.PetEntry.CONTENT_URI, values);
+
+//        Parse the last path of the URI, which is the id
+        long newRowID = ContentUris.parseId(uri);
+//        long newRowID = db.insert(PetContract.PetEntry.TABLE_NAME, null, values);
 
         Log.d("INSERTPETS", " : " + newRowID);
 
