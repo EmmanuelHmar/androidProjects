@@ -80,7 +80,7 @@ public class CatalogActivity extends AppCompatActivity {
 
         ContentValues values = new ContentValues();
         values.put(PetContract.PetEntry.COLUMN_PET_NAME, "Toto");
-        values.put(PetContract.PetEntry.COLOMN_PET_BREED, "Terrier");
+        values.put(PetContract.PetEntry.COLUMN_PET_BREED, "Terrier");
         values.put(PetContract.PetEntry.COLUMN_PET_GENDER, PetContract.PetEntry.GENDER_MALE);
         values.put(PetContract.PetEntry.COLUMN_PET_WEIGHT, 7);
 
@@ -111,14 +111,55 @@ public class CatalogActivity extends AppCompatActivity {
 //        Get the database in read mode
         SQLiteDatabase db = dbHelper.getReadableDatabase();
 
-        Cursor cursor = db.rawQuery("SELECT * FROM " + PetContract.PetEntry.TABLE_NAME,null);
+//        Cursor cursor = db.rawQuery("SELECT * FROM " + PetContract.PetEntry.TABLE_NAME,null);
+
+//        This projection will specify which column from the database we will actually use in the query
+        String[] projection = {PetContract.PetEntry._ID, PetContract.PetEntry.COLUMN_PET_NAME,
+                PetContract.PetEntry.COLUMN_PET_BREED, PetContract.PetEntry.COLUMN_PET_GENDER,
+                PetContract.PetEntry.COLUMN_PET_WEIGHT};
+
+//    Filter results using selction
+        String selection = PetContract.PetEntry.COLUMN_PET_GENDER + " ?=";
+        String[] selectionArgs = {"0"};
+
+//        Sort the results
+        String sortOrder = PetContract.PetEntry.TABLE_NAME + " DESC";
+
+//        Get it as rows in the databse
+        Cursor cursor = db.query(PetContract.PetEntry.TABLE_NAME, projection, null, null, null
+                , null
+                , null);
+
 
         Log.d(TAG, "displayDatabaseInfo: " + cursor.toString());
+
+        int getID = cursor.getColumnIndex(PetContract.PetEntry._ID);
+        int getName = cursor.getColumnIndex(PetContract.PetEntry.COLUMN_PET_NAME);
+        int getBreed = cursor.getColumnIndex(PetContract.PetEntry.COLUMN_PET_BREED);
+        int getGender = cursor.getColumnIndex(PetContract.PetEntry.COLUMN_PET_GENDER);
+        int getWeight = cursor.getColumnIndex(PetContract.PetEntry.COLUMN_PET_WEIGHT);
 
         try {
             TextView displayView = (TextView) findViewById(R.id.text_view_pet);
             displayView.setText("Number of rows in pets database table: " + cursor.getCount());
-        }finally {
+
+            displayView.append("\n" + PetContract.PetEntry._ID + " - " + PetContract.PetEntry.COLUMN_PET_NAME +
+                    " - " + PetContract.PetEntry.COLUMN_PET_BREED + " - " + PetContract.PetEntry.GENDER_FEMALE +
+                    " - " + PetContract.PetEntry.COLUMN_PET_WEIGHT + "\n");
+
+            while (cursor.moveToNext()) {
+                int id = cursor.getInt(getID);
+                String name = cursor.getString(getName);
+                String breed = cursor.getString(getBreed);
+                int gender = cursor.getInt(getGender);
+                int weight = cursor.getInt(getWeight);
+
+                displayView.append("\n" + id + " - " + name + " - " + breed + " - " + gender + " - " +
+                        weight);
+            }
+
+
+        } finally {
             cursor.close();
         }
 

@@ -130,7 +130,7 @@ public class EditorActivity extends AppCompatActivity {
 
         ContentValues values = new ContentValues();
         values.put(PetContract.PetEntry.COLUMN_PET_NAME, namePet);
-        values.put(PetContract.PetEntry.COLOMN_PET_BREED, breedPet);
+        values.put(PetContract.PetEntry.COLUMN_PET_BREED, breedPet);
         values.put(PetContract.PetEntry.COLUMN_PET_GENDER, genderPet);
         values.put(PetContract.PetEntry.COLUMN_PET_WEIGHT, weightPet);
 
