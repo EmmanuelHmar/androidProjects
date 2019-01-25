@@ -39,6 +39,8 @@ import com.example.android.pets.data.PetContract;
  */
 public class EditorActivity extends AppCompatActivity {
 
+    private static final String TAG = EditorActivity.class.getSimpleName();
+
     /**
      * EditText field to enter the pet's name
      */
@@ -124,6 +126,7 @@ public class EditorActivity extends AppCompatActivity {
         String namePet = mNameEditText.getText().toString().trim();
         String breedPet = mBreedEditText.getText().toString().trim();
         int genderPet = mGender;
+        Log.d(TAG, "insertPets: Gender " + genderPet);
         int weightPet = Integer.parseInt(mWeightEditText.getText().toString().trim());
 
 //        Content Values key-pair
@@ -143,9 +146,9 @@ public class EditorActivity extends AppCompatActivity {
         Log.d("INSERTPETS", " : " + newRowID);
 
         if (newRowID == -1) {
-            Toast.makeText(this, "Error saving pet ", Toast.LENGTH_LONG).show();
+            Toast.makeText(this,R.string.editor_insert_pet_failed, Toast.LENGTH_LONG).show();
         } else {
-            Toast.makeText(this, "Pet saved with id: " + newRowID, Toast.LENGTH_LONG).show();
+            Toast.makeText(this, R.string.editor_insert_pet_successful, Toast.LENGTH_LONG).show();
         }
 
     }

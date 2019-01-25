@@ -18,7 +18,7 @@ package com.example.android.pets;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
@@ -73,20 +73,17 @@ public class CatalogActivity extends AppCompatActivity {
     }
 
     private void insertPet() {
-//        Get the database in write mode
-        SQLiteDatabase db = dbHelper.getWritableDatabase();
 
 //        Create a map of values, where column name are keys (& values)
-
         ContentValues values = new ContentValues();
         values.put(PetContract.PetEntry.COLUMN_PET_NAME, "Toto");
         values.put(PetContract.PetEntry.COLUMN_PET_BREED, "Terrier");
         values.put(PetContract.PetEntry.COLUMN_PET_GENDER, PetContract.PetEntry.GENDER_MALE);
         values.put(PetContract.PetEntry.COLUMN_PET_WEIGHT, 7);
 
-        long newRowId = db.insert(PetContract.PetEntry.TABLE_NAME, null, values);
+        Uri uri = getContentResolver().insert(PetContract.PetEntry.CONTENT_URI, values);
 
-        Log.d(TAG, "insertPet: " + newRowId);
+        Log.d(TAG, "insertPet: " + uri);
     }
 
     @Override

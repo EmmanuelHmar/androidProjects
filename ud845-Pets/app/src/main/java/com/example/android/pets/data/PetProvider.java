@@ -7,6 +7,7 @@ import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
+import android.util.Log;
 
 /**
  * {@link ContentProvider} for Pets app.
@@ -83,8 +84,6 @@ public class PetProvider extends ContentProvider {
      */
     @Override
     public Uri insert(Uri uri, ContentValues contentValues) {
-
-
         int match = sUriMatcher.match(uri);
 
         switch (match) {
@@ -96,12 +95,28 @@ public class PetProvider extends ContentProvider {
     }
 
     private Uri insertPet(Uri uri, ContentValues contentValues) {
+        String name = contentValues.getAsString(PetContract.PetEntry.COLUMN_PET_NAME);
+        Integer gender = contentValues.getAsInteger(PetContract.PetEntry.COLUMN_PET_GENDER);
+        Integer weight = contentValues.getAsInteger(PetContract.PetEntry.COLUMN_PET_WEIGHT);
+
+        if (name == null) {
+            throw new IllegalArgumentException("Pet requires a name");
+        } else if (gender == null || !PetContract.PetEntry.isValidGender(gender)) {
+            throw new IllegalArgumentException("Pet requires a gender " + gender);
+        } else if (weight == null && weight < 0) {
+            throw new IllegalArgumentException("Pet requires a weight");
+        }
+
         SQLiteDatabase db = dbHelper.getWritableDatabase();
 
-        long newRowId = db.insert(PetContract.PetEntry.TABLE_NAME, null, contentValues);
+        long id = db.insert(PetContract.PetEntry.TABLE_NAME, null, contentValues);
 
-        return ContentUris.withAppendedId(uri, newRowId);
+        if (id == -1) {
+            Log.e(LOG_TAG, "Failed to insert row for " + uri);
+            return null;
+        }
 
+        return ContentUris.withAppendedId(uri, id);
     }
 
 
@@ -110,7 +125,51 @@ public class PetProvider extends ContentProvider {
      */
     @Override
     public int update(Uri uri, ContentValues contentValues, String selection, String[] selectionArgs) {
-        return 0;
+
+        final int match = sUriMatcher.match(uri);
+
+        switch (match) {
+            case PETS:
+                return updatePets(uri, contentValues, selection, selectionArgs);
+            case PET_ID:
+                selection = PetContract.PetEntry._ID + "=?";
+                selectionArgs = new String[]{String.valueOf(ContentUris.parseId(uri))};
+                return updatePets(uri, contentValues, selection, selectionArgs);
+            default:
+                throw new IllegalArgumentException("Update is not supported for " + uri);
+        }
+    }
+
+    private int updatePets(Uri uri, ContentValues contentValues, String selection, String[] selectionArgs) {
+
+//        If there are no values passed to change
+        if (contentValues.size() == 0) {
+            return 0;
+        }
+
+        String name = contentValues.getAsString(PetContract.PetEntry.COLUMN_PET_NAME);
+        Integer gender = contentValues.getAsInteger(PetContract.PetEntry.COLUMN_PET_GENDER);
+        Integer weight = contentValues.getAsInteger(PetContract.PetEntry.COLUMN_PET_WEIGHT);
+
+        if (contentValues.containsKey(name) && name == null) {
+            throw new IllegalArgumentException("Pet name is required");
+        }
+        if (contentValues.containsKey(String.valueOf(gender))) {
+            if (gender == null || !PetContract.PetEntry.isValidGender(gender)) {
+                throw new IllegalArgumentException("Pet gender is required");
+            }
+        }
+
+        if (contentValues.containsKey(String.valueOf(weight))) {
+            if (weight == null || weight < 0) {
+                throw new IllegalArgumentException("Pet weight is required");
+            }
+        }
+
+
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+
+        return db.update(PetContract.PetEntry.TABLE_NAME, contentValues, selection, selectionArgs);
     }
 
     /**
