@@ -55,6 +55,12 @@ public class CatalogActivity extends AppCompatActivity {
             }
         });
 
+//        Get the list view
+        ListView listView = (ListView) findViewById(R.id.list_view_pet);
+
+//        Find and set the empty view on the listview, only shows when there's no list to show
+        View emptyView = (View) findViewById(R.id.empty_view);
+        listView.setEmptyView(emptyView);
         dbHelper = new PetDbHelper(this);
         displayDatabaseInfo();
     }
