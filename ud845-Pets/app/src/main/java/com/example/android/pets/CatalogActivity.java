@@ -26,9 +26,10 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.TextView;
+import android.widget.ListView;
 
 import com.example.android.pets.data.PetContract;
+import com.example.android.pets.data.PetCursorAdapter;
 import com.example.android.pets.data.PetDbHelper;
 
 /**
@@ -117,45 +118,17 @@ public class CatalogActivity extends AppCompatActivity {
 //        Sort the results
         String sortOrder = PetContract.PetEntry.TABLE_NAME + " DESC";
 
+//        The returned cursor that was returned
         Cursor cursor = getContentResolver().query(PetContract.PetEntry.CONTENT_URI, projection, null, null, null);
 
-//        Get it as rows in the database
-//        Cursor cursor = db.query(PetContract.PetEntry.TABLE_NAME, projection, null, null, null
-//                , null
-//                , null);
+//        Get the list view
+        ListView listView = (ListView) findViewById(R.id.list_view_pet);
 
+//        Initialize the cursorAdapter
+        PetCursorAdapter adapter = new PetCursorAdapter(this, cursor);
 
-        Log.d(TAG, "displayDatabaseInfo: " + cursor.toString());
-
-        int getID = cursor.getColumnIndex(PetContract.PetEntry._ID);
-        int getName = cursor.getColumnIndex(PetContract.PetEntry.COLUMN_PET_NAME);
-        int getBreed = cursor.getColumnIndex(PetContract.PetEntry.COLUMN_PET_BREED);
-        int getGender = cursor.getColumnIndex(PetContract.PetEntry.COLUMN_PET_GENDER);
-        int getWeight = cursor.getColumnIndex(PetContract.PetEntry.COLUMN_PET_WEIGHT);
-
-        try {
-            TextView displayView = (TextView) findViewById(R.id.text_view_pet);
-            displayView.setText("Number of rows in pets database table: " + cursor.getCount());
-
-            displayView.append("\n" + PetContract.PetEntry._ID + " - " + PetContract.PetEntry.COLUMN_PET_NAME +
-                    " - " + PetContract.PetEntry.COLUMN_PET_BREED + " - " + PetContract.PetEntry.GENDER_FEMALE +
-                    " - " + PetContract.PetEntry.COLUMN_PET_WEIGHT + "\n");
-
-            while (cursor.moveToNext()) {
-                int id = cursor.getInt(getID);
-                String name = cursor.getString(getName);
-                String breed = cursor.getString(getBreed);
-                int gender = cursor.getInt(getGender);
-                int weight = cursor.getInt(getWeight);
-
-                displayView.append("\n" + id + " - " + name + " - " + breed + " - " + gender + " - " +
-                        weight);
-            }
-
-
-        } finally {
-            cursor.close();
-        }
+//        Set the adapter
+        listView.setAdapter(adapter);
 
     }
 }

@@ -63,4 +63,10 @@
 
     <!--Toast message in editor when new pet has been saved successfully-->
     <string name="editor_insert_pet_failed">Error with saving pet</string>
+
+    <!--title text for the empty view-->
+    <string name="empty_view_title_text">It\'s a bit lonely here…</string>
+
+    <!--Subtitle text for the empty view-->
+    <string name="empty_view_subtitle_text">Get started by adding a pet</string>
 </resources>
