@@ -17,6 +17,7 @@ package com.example.android.pets;
 
 import android.content.ContentUris;
 import android.content.ContentValues;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
@@ -72,6 +73,11 @@ public class EditorActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_editor);
 
+        String title = getIntent().getStringExtra("title");
+
+        if (title != null) {
+            setTitle(title);
+        }
 
         // Find all relevant views that we will need to read user input from
         mNameEditText = (EditText) findViewById(R.id.edit_pet_name);
@@ -80,6 +86,33 @@ public class EditorActivity extends AppCompatActivity {
         mGenderSpinner = (Spinner) findViewById(R.id.spinner_gender);
 
         setupSpinner();
+
+        if (title.equals("Edit Pet")) {
+            Uri uri = Uri.parse(getIntent().getStringExtra("petURI"));
+
+            String[] projection = {PetContract.PetEntry._ID, PetContract.PetEntry.COLUMN_PET_NAME,
+                    PetContract.PetEntry.COLUMN_PET_BREED, PetContract.PetEntry.COLUMN_PET_GENDER, PetContract.PetEntry.COLUMN_PET_WEIGHT};
+
+            Cursor cursor = getContentResolver().query(uri, projection, null, null, null);
+
+            if (cursor.moveToFirst()) {
+                try {
+                    String weight = cursor.getString(cursor.getColumnIndex(PetContract.PetEntry.COLUMN_PET_WEIGHT));
+
+                    Log.d(TAG, "onCreate: WEIGHT " + weight);
+                    mNameEditText.setText(cursor.getString(cursor.getColumnIndex(PetContract.PetEntry.COLUMN_PET_NAME)));
+                    mBreedEditText.setText(cursor.getString(cursor.getColumnIndex(PetContract.PetEntry.COLUMN_PET_BREED)));
+                    mWeightEditText.setText(weight);
+
+                    mGender = cursor.getInt(cursor.getColumnIndex(PetContract.PetEntry.COLUMN_PET_GENDER));
+                    mGenderSpinner.setSelection(mGender);
+                } finally {
+                    cursor.close();
+                }
+            }
+        }
+
+
     }
 
     /**
@@ -146,7 +179,7 @@ public class EditorActivity extends AppCompatActivity {
         Log.d("INSERTPETS", " : " + newRowID);
 
         if (newRowID == -1) {
-            Toast.makeText(this,R.string.editor_insert_pet_failed, Toast.LENGTH_LONG).show();
+            Toast.makeText(this, R.string.editor_insert_pet_failed, Toast.LENGTH_LONG).show();
         } else {
             Toast.makeText(this, R.string.editor_insert_pet_successful, Toast.LENGTH_LONG).show();
         }

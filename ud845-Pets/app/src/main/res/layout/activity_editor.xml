@@ -12,6 +12,7 @@
 -->
 <!-- Layout for the editor -->
 <LinearLayout
+    android:id="@+id/editor_layout"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"

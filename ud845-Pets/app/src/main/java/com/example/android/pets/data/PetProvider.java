@@ -76,7 +76,7 @@ public class PetProvider extends ContentProvider {
                 throw new IllegalArgumentException("Cannot query unknown URI " + uri);
         }
 
-        cursor.setNotificationUri(getContext().getContentResolver(), uri);
+//        cursor.setNotificationUri(getContext().getContentResolver(), uri);
 
         return cursor;
     }

@@ -16,6 +16,7 @@
 package com.example.android.pets;
 
 import android.app.LoaderManager;
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.CursorLoader;
 import android.content.Intent;
@@ -29,6 +30,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ListView;
 
 import com.example.android.pets.data.PetContract;
@@ -54,6 +56,7 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(CatalogActivity.this, EditorActivity.class);
+                intent.putExtra("title", "Add a pet");
                 startActivity(intent);
             }
         });
@@ -130,6 +133,7 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
 
 //        The returned cursor that was returned
         Cursor cursor = getContentResolver().query(PetContract.PetEntry.CONTENT_URI, projection, null, null, null);
+        cursor.moveToNext();
 
 //        Get the list view
         ListView listView = (ListView) findViewById(R.id.list_view_pet);
@@ -173,7 +177,25 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
 //        Set the adapter
         listView.setAdapter(adapter);
 
-        Log.d(TAG, "onLoadFinished: Data is being Loaded");
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
+                Uri uri = ContentUris.withAppendedId(PetContract.PetEntry.CONTENT_URI, id);
+
+                Log.d(TAG, "onItemClick: URI " + uri);
+                Intent intent = new Intent(CatalogActivity.this, EditorActivity.class);
+
+//                Pass on the new title on the intent
+                intent.putExtra("title", "Edit Pet");
+
+//                Include the URI id
+                intent.putExtra("petURI", uri.toString());
+
+                startActivity(intent);
+
+            }
+        });
+
 
 //        swap the new cursor in
         adapter.swapCursor(cursor);
