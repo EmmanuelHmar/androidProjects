@@ -65,6 +65,7 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
         View emptyView = (View) findViewById(R.id.empty_view);
         listView.setEmptyView(emptyView);
         dbHelper = new PetDbHelper(this);
+        getLoaderManager().initLoader(0, null, this);
 //        displayDatabaseInfo();
     }
 
@@ -171,6 +172,8 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
 
 //        Set the adapter
         listView.setAdapter(adapter);
+
+        Log.d(TAG, "onLoadFinished: Data is being Loaded");
 
 //        swap the new cursor in
         adapter.swapCursor(cursor);

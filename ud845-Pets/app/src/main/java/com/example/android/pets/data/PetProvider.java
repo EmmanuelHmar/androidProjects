@@ -76,6 +76,8 @@ public class PetProvider extends ContentProvider {
                 throw new IllegalArgumentException("Cannot query unknown URI " + uri);
         }
 
+        cursor.setNotificationUri(getContext().getContentResolver(), uri);
+
         return cursor;
     }
 
@@ -115,6 +117,8 @@ public class PetProvider extends ContentProvider {
             Log.e(LOG_TAG, "Failed to insert row for " + uri);
             return null;
         }
+
+        getContext().getContentResolver().notifyChange(uri, null);
 
         return ContentUris.withAppendedId(uri, id);
     }
@@ -169,7 +173,12 @@ public class PetProvider extends ContentProvider {
 
         SQLiteDatabase db = dbHelper.getWritableDatabase();
 
-        return db.update(PetContract.PetEntry.TABLE_NAME, contentValues, selection, selectionArgs);
+
+        int rowsUpdated = db.update(PetContract.PetEntry.TABLE_NAME, contentValues, selection, selectionArgs);
+        if (rowsUpdated != 0)
+            getContext().getContentResolver().notifyChange(uri, null);
+
+        return rowsUpdated;
     }
 
     /**
@@ -177,20 +186,35 @@ public class PetProvider extends ContentProvider {
      */
     @Override
     public int delete(Uri uri, String selection, String[] selectionArgs) {
-        SQLiteDatabase db = dbHelper.getWritableDatabase();
+
 
         final int match = sUriMatcher.match(uri);
 
+
+        getContext().getContentResolver().notifyChange(uri, null);
+
         switch (match) {
             case PETS:
-                return db.delete(PetContract.PetEntry.TABLE_NAME, selection, selectionArgs);
+                return deleteRows(uri, selection, selectionArgs);
             case PET_ID:
                 selection = PetContract.PetEntry._ID + "=?";
                 selectionArgs = new String[]{String.valueOf(ContentUris.parseId(uri))};
-                return db.delete(PetContract.PetEntry.TABLE_NAME, selection, selectionArgs);
+                return deleteRows(uri, selection, selectionArgs);
             default:
                 throw new IllegalArgumentException("Delete is not supported for " + uri);
         }
+    }
+
+    private int deleteRows(Uri uri, String selection, String[] selectionArgs) {
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+
+        int rowsDeleted = db.delete(PetContract.PetEntry.TABLE_NAME, selection, selectionArgs);
+
+        if (rowsDeleted != 0) {
+            getContext().getContentResolver().notifyChange(uri, null);
+        }
+
+        return rowsDeleted;
     }
 
     /**
