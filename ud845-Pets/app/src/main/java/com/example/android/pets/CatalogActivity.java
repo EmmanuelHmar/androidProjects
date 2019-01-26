@@ -15,8 +15,11 @@
  */
 package com.example.android.pets;
 
+import android.app.LoaderManager;
 import android.content.ContentValues;
+import android.content.CursorLoader;
 import android.content.Intent;
+import android.content.Loader;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -35,8 +38,8 @@ import com.example.android.pets.data.PetDbHelper;
 /**
  * Displays list of pets that were entered and stored in the app.
  */
-public class CatalogActivity extends AppCompatActivity {
-
+public class CatalogActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
+    private PetCursorAdapter adapter;
     private static final String TAG = CatalogActivity.class.getSimpleName();
     PetDbHelper dbHelper;
 
@@ -62,7 +65,7 @@ public class CatalogActivity extends AppCompatActivity {
         View emptyView = (View) findViewById(R.id.empty_view);
         listView.setEmptyView(emptyView);
         dbHelper = new PetDbHelper(this);
-        displayDatabaseInfo();
+//        displayDatabaseInfo();
     }
 
     @Override
@@ -131,10 +134,53 @@ public class CatalogActivity extends AppCompatActivity {
         ListView listView = (ListView) findViewById(R.id.list_view_pet);
 
 //        Initialize the cursorAdapter
-        PetCursorAdapter adapter = new PetCursorAdapter(this, cursor);
+        adapter = new PetCursorAdapter(this, cursor);
 
 //        Set the adapter
         listView.setAdapter(adapter);
+    }
+
+    @Override
+    public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
+//        This projection will specify which column from the database we will actually use in the query
+        String[] projection = {PetContract.PetEntry._ID, PetContract.PetEntry.COLUMN_PET_NAME,
+                PetContract.PetEntry.COLUMN_PET_BREED};
+        //, PetContract.PetEntry.COLUMN_PET_GENDER,
+        //       PetContract.PetEntry.COLUMN_PET_WEIGHT};
+
+//    Filter results using selction
+        String selection = PetContract.PetEntry.COLUMN_PET_GENDER + " ?=";
+        String[] selectionArgs = {"0"};
+
+//        Sort the results
+        String sortOrder = PetContract.PetEntry.TABLE_NAME + " DESC";
+
+//        The returned cursor that was returned
+//        Cursor cursor = getContentResolver().query(PetContract.PetEntry.CONTENT_URI, projection, null, null, null);
+
+        return new CursorLoader(getApplicationContext(), PetContract.PetEntry.CONTENT_URI, projection, null, null, null);
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
+//        Get the list view
+        ListView listView = (ListView) findViewById(R.id.list_view_pet);
+
+//        Initialize the cursorAdapter
+        adapter = new PetCursorAdapter(this, cursor);
+
+//        Set the adapter
+        listView.setAdapter(adapter);
+
+//        swap the new cursor in
+        adapter.swapCursor(cursor);
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+//        Called when the last cursor provided to onloadfinished above is about to be closed.
+//        We need to make sure we are no longer using it
+        adapter.swapCursor(null);
 
     }
 }
