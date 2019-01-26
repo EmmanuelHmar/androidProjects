@@ -56,7 +56,6 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(CatalogActivity.this, EditorActivity.class);
-                intent.putExtra("title", "Add a pet");
                 startActivity(intent);
             }
         });
@@ -185,11 +184,8 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
                 Log.d(TAG, "onItemClick: URI " + uri);
                 Intent intent = new Intent(CatalogActivity.this, EditorActivity.class);
 
-//                Pass on the new title on the intent
-                intent.putExtra("title", "Edit Pet");
-
 //                Include the URI id
-                intent.putExtra("petURI", uri.toString());
+                intent.setData(uri);
 
                 startActivity(intent);
 

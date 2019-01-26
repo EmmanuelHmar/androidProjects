@@ -69,4 +69,10 @@
 
     <!--Subtitle text for the empty view-->
     <string name="empty_view_subtitle_text">Get started by adding a pet</string>
+
+    <!--Set the name of the editorActivity pet when inserting-->
+   <string name="add_pet_editor_activity" >Add a Pet</string>
+
+    <!--Set the name of the editorActivity pet when updating-->
+    <string name="edit_pet_editor_activity" >Edit Pet</string>
 </resources>
