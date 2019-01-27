@@ -71,7 +71,12 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
      */
     private int mGender = 0;
 
+    //    The Uri passed from CatalogActivity
     private Uri uri;
+
+    //    The titleName of the activity
+    private String addPetTitle;
+    private String editPetTitle;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,10 +87,11 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
 
         if (uri == null) {
             setTitle(getString(R.string.add_pet_editor_activity));
+            addPetTitle = getString(R.string.add_pet_editor_activity);
         } else {
             setTitle(getString(R.string.edit_pet_editor_activity));
+            editPetTitle = getString(R.string.edit_pet_editor_activity);
         }
-
 
         // Find all relevant views that we will need to read user input from
         mNameEditText = (EditText) findViewById(R.id.edit_pet_name);
@@ -93,7 +99,10 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         mWeightEditText = (EditText) findViewById(R.id.edit_pet_weight);
         mGenderSpinner = (Spinner) findViewById(R.id.spinner_gender);
 
-        getLoaderManager().initLoader(0, null, this);
+//
+        if (getTitle().equals(editPetTitle)) {
+            getLoaderManager().initLoader(0, null, this);
+        }
 
         setupSpinner();
     }
@@ -137,12 +146,11 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         });
     }
 
-    private void insertPets() {
+    private void savePets() {
 
         String namePet = mNameEditText.getText().toString().trim();
         String breedPet = mBreedEditText.getText().toString().trim();
         int genderPet = mGender;
-        Log.d(TAG, "insertPets: Gender " + genderPet);
         int weightPet = Integer.parseInt(mWeightEditText.getText().toString().trim());
 
 //        Content Values key-pair
@@ -152,21 +160,34 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         values.put(PetContract.PetEntry.COLUMN_PET_GENDER, genderPet);
         values.put(PetContract.PetEntry.COLUMN_PET_WEIGHT, weightPet);
 
+//        Add the pet to database if "Add a Pet"
+        if (getTitle().equals(addPetTitle)) {
 //        Return the uri after running the insert query
-        Uri uri = getContentResolver().insert(PetContract.PetEntry.CONTENT_URI, values);
+            Uri insertURI = getContentResolver().insert(PetContract.PetEntry.CONTENT_URI, values);
 
 //        Parse the last path of the URI, which is the id
-        long newRowID = ContentUris.parseId(uri);
+            long newRowID = ContentUris.parseId(insertURI);
+
 //        long newRowID = db.insert(PetContract.PetEntry.TABLE_NAME, null, values);
 
-        Log.d("INSERTPETS", " : " + newRowID);
+            Log.d("INSERTPETS", " : " + newRowID);
 
-        if (newRowID == -1) {
-            Toast.makeText(this, R.string.editor_insert_pet_failed, Toast.LENGTH_LONG).show();
-        } else {
-            Toast.makeText(this, R.string.editor_insert_pet_successful, Toast.LENGTH_LONG).show();
+            if (newRowID == -1) {
+                Toast.makeText(this, R.string.editor_insert_pet_failed, Toast.LENGTH_LONG).show();
+            } else {
+                Toast.makeText(this, R.string.editor_insert_pet_successful, Toast.LENGTH_LONG).show();
+            }
         }
+//        Else if the activity is "Edit Pet"
+        else {
+            int updatePet = getContentResolver().update(uri, values, null, null);
 
+            if (updatePet != 0) {
+                Toast.makeText(this, "Pet updated ", Toast.LENGTH_LONG).show();
+            } else {
+                Toast.makeText(this, "Error updating pet ", Toast.LENGTH_LONG).show();
+            }
+        }
     }
 
     @Override
@@ -184,7 +205,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
             // Respond to a click on the "Save" menu option
             case R.id.action_save:
                 // Do nothing for now
-                insertPets();
+                savePets();
                 finish();
                 return true;
             // Respond to a click on the "Delete" menu option
