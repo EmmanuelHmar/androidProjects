@@ -69,7 +69,6 @@ public class PetProvider extends ContentProvider {
 
 //                Select _id from pets where _id = PETS_ID
                 cursor = db.query(PetContract.PetEntry.TABLE_NAME, projection, selection, selectionArgs, null, null, sortOrder);
-
                 break;
 
             default:

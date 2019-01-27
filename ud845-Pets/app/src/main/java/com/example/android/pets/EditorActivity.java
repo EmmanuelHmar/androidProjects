@@ -15,10 +15,12 @@
  */
 package com.example.android.pets;
 
+import android.app.AlertDialog;
 import android.app.LoaderManager;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.CursorLoader;
+import android.content.DialogInterface;
 import android.content.Loader;
 import android.database.Cursor;
 import android.net.Uri;
@@ -29,6 +31,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -78,6 +81,8 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
     private String addPetTitle;
     private String editPetTitle;
 
+    private boolean petHasChanged;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -105,6 +110,11 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         }
 
         setupSpinner();
+
+        mNameEditText.setOnTouchListener(onTouchListener);
+        mBreedEditText.setOnTouchListener(onTouchListener);
+        mWeightEditText.setOnTouchListener(onTouchListener);
+        mGenderSpinner.setOnTouchListener(onTouchListener);
     }
 
     /**
@@ -148,17 +158,28 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
 
     private void savePets() {
 
+
         String namePet = mNameEditText.getText().toString().trim();
         String breedPet = mBreedEditText.getText().toString().trim();
         int genderPet = mGender;
-        int weightPet = Integer.parseInt(mWeightEditText.getText().toString().trim());
+        String weightString = mWeightEditText.getText().toString().trim();
+
+        if (TextUtils.isEmpty(namePet) &&
+                TextUtils.isEmpty(breedPet) && TextUtils.isEmpty(weightString) && genderPet == PetContract.PetEntry.GENDER_UNKNOWN) {
+            Toast.makeText(this, "Empty fields not saved", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+//        Get the integer from the weight string
+        int weight;
+        weight = Integer.valueOf(weightString);
 
 //        Content Values key-pair
         ContentValues values = new ContentValues();
         values.put(PetContract.PetEntry.COLUMN_PET_NAME, namePet);
         values.put(PetContract.PetEntry.COLUMN_PET_BREED, breedPet);
         values.put(PetContract.PetEntry.COLUMN_PET_GENDER, genderPet);
-        values.put(PetContract.PetEntry.COLUMN_PET_WEIGHT, weightPet);
+        values.put(PetContract.PetEntry.COLUMN_PET_WEIGHT, weight);
 
 //        Add the pet to database if "Add a Pet"
         if (getTitle().equals(addPetTitle)) {
@@ -215,8 +236,26 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
             // Respond to a click on the "Up" arrow button in the app bar
             case android.R.id.home:
                 // Navigate back to parent activity (CatalogActivity)
-                NavUtils.navigateUpFromSameTask(this);
+
+//                If the pet hasn't changed, continue w/ navigating to the parent activity
+                if (!petHasChanged) {
+                    NavUtils.navigateUpFromSameTask(this);
+                    return true;
+                }
+
+//                Else if there are unsaved changes, setup the dialog to warn the user
+                DialogInterface.OnClickListener discardButtonClickListener = new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+//                        User clicked "discard button", navigate to parent activity
+                        NavUtils.navigateUpFromSameTask(EditorActivity.this);
+                    }
+                };
+
+                showUnsavedChangedDialog(discardButtonClickListener);
+
                 return true;
+
         }
         return super.onOptionsItemSelected(item);
     }
@@ -251,5 +290,52 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         mNameEditText.getText().clear();
         mBreedEditText.getText().clear();
         mWeightEditText.getText().clear();
+    }
+
+//    OnTouchListener that listens for any user touches on a view, change the pet boolean to true
+    private View.OnTouchListener onTouchListener = new View.OnTouchListener() {
+        @Override
+        public boolean onTouch(View view, MotionEvent motionEvent) {
+            petHasChanged = true;
+            return false;
+        }
+    };
+
+    private void showUnsavedChangedDialog(DialogInterface.OnClickListener discardButtonClickListener) {
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage(R.string.unsaved_changes_dialog_msg);
+        builder.setPositiveButton(R.string.discard, discardButtonClickListener);
+        builder.setNegativeButton(R.string.keep_editing, new DialogInterface.OnClickListener() {
+            //            User clicked "keep editing" editing, dismiss and continue
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                if (dialogInterface != null) {
+                    dialogInterface.dismiss();
+                }
+            }
+        });
+
+        AlertDialog alertDialog = builder.create();
+        alertDialog.show();
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (!petHasChanged) {
+            super.onBackPressed();
+            return;
+        }
+
+        DialogInterface.OnClickListener discardButtonClickListener = new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+//                user clicked "Discard" button, close the current activity
+                finish();
+            }
+        };
+
+        showUnsavedChangedDialog(discardButtonClickListener);
+
     }
 }

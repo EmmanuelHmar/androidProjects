@@ -75,4 +75,10 @@
 
     <!--Set the name of the editorActivity pet when updating-->
     <string name="edit_pet_editor_activity" >Edit Pet</string>
+
+    <string name="unsaved_changes_dialog_msg">Discard your changes and quit editing?</string>
+
+    <string name="discard">Discard</string>
+
+    <string name="keep_editing">Keep Editing</string>
 </resources>
