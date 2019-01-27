@@ -75,7 +75,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
     private int mGender = 0;
 
     //    The Uri passed from CatalogActivity
-    private Uri uri;
+    private Uri currentPetUri;
 
     //    The titleName of the activity
     private String addPetTitle;
@@ -88,9 +88,9 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_editor);
 
-        uri = getIntent().getData();
+        currentPetUri = getIntent().getData();
 
-        if (uri == null) {
+        if (currentPetUri == null) {
             setTitle(getString(R.string.add_pet_editor_activity));
             addPetTitle = getString(R.string.add_pet_editor_activity);
         } else {
@@ -107,6 +107,11 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
 //
         if (getTitle().equals(editPetTitle)) {
             getLoaderManager().initLoader(0, null, this);
+        }
+
+        if (getTitle().equals(addPetTitle)) {
+//            Invalidate the options menu if activity is "Add a Pet"
+            invalidateOptionsMenu();
         }
 
         setupSpinner();
@@ -183,7 +188,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
 
 //        Add the pet to database if "Add a Pet"
         if (getTitle().equals(addPetTitle)) {
-//        Return the uri after running the insert query
+//        Return the currentPetUri after running the insert query
             Uri insertURI = getContentResolver().insert(PetContract.PetEntry.CONTENT_URI, values);
 
 //        Parse the last path of the URI, which is the id
@@ -201,7 +206,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         }
 //        Else if the activity is "Edit Pet"
         else {
-            int updatePet = getContentResolver().update(uri, values, null, null);
+            int updatePet = getContentResolver().update(currentPetUri, values, null, null);
 
             if (updatePet != 0) {
                 Toast.makeText(this, "Pet updated ", Toast.LENGTH_LONG).show();
@@ -209,6 +214,19 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
                 Toast.makeText(this, "Error updating pet ", Toast.LENGTH_LONG).show();
             }
         }
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+//        return super.onPrepareOptionsMenu(menu);
+
+//        Set the save button to invisible when "Adding a Pet"
+        if (currentPetUri == null) {
+            MenuItem menuItem = menu.findItem(R.id.action_delete);
+            menuItem.setVisible(false);
+        }
+
+        return true;
     }
 
     @Override
@@ -266,7 +284,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         String[] projection = {PetContract.PetEntry._ID, PetContract.PetEntry.COLUMN_PET_NAME,
                 PetContract.PetEntry.COLUMN_PET_BREED, PetContract.PetEntry.COLUMN_PET_GENDER, PetContract.PetEntry.COLUMN_PET_WEIGHT};
 
-        return new CursorLoader(getApplicationContext(), uri, projection, null, null, null);
+        return new CursorLoader(getApplicationContext(), currentPetUri, projection, null, null, null);
     }
 
     @Override
