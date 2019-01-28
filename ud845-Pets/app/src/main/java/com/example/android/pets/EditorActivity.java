@@ -28,7 +28,6 @@ import android.os.Bundle;
 import android.support.v4.app.NavUtils;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -163,12 +162,12 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
 
     private void savePets() {
 
-
         String namePet = mNameEditText.getText().toString().trim();
         String breedPet = mBreedEditText.getText().toString().trim();
         int genderPet = mGender;
         String weightString = mWeightEditText.getText().toString().trim();
 
+//        If the fields are empty, exit activity without saving anything
         if (TextUtils.isEmpty(namePet) &&
                 TextUtils.isEmpty(breedPet) && TextUtils.isEmpty(weightString) && genderPet == PetContract.PetEntry.GENDER_UNKNOWN) {
             Toast.makeText(this, "Empty fields not saved", Toast.LENGTH_SHORT).show();
@@ -193,10 +192,6 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
 
 //        Parse the last path of the URI, which is the id
             long newRowID = ContentUris.parseId(insertURI);
-
-//        long newRowID = db.insert(PetContract.PetEntry.TABLE_NAME, null, values);
-
-            Log.d("INSERTPETS", " : " + newRowID);
 
             if (newRowID == -1) {
                 Toast.makeText(this, R.string.editor_insert_pet_failed, Toast.LENGTH_LONG).show();
@@ -250,6 +245,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
             // Respond to a click on the "Delete" menu option
             case R.id.action_delete:
                 // Do nothing for now
+                showDeleteConfirmationDialog();
                 return true;
             // Respond to a click on the "Up" arrow button in the app bar
             case android.R.id.home:
@@ -310,7 +306,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         mWeightEditText.getText().clear();
     }
 
-//    OnTouchListener that listens for any user touches on a view, change the pet boolean to true
+    //    OnTouchListener that listens for any user touches on a view, change the pet boolean to true
     private View.OnTouchListener onTouchListener = new View.OnTouchListener() {
         @Override
         public boolean onTouch(View view, MotionEvent motionEvent) {
@@ -355,5 +351,45 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
 
         showUnsavedChangedDialog(discardButtonClickListener);
 
+    }
+
+    private void showDeleteConfirmationDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage(R.string.delete_dialog_msg);
+        builder.setPositiveButton(R.string.delete, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+//                User clicked "delete" button, so delete the pet.
+                deletePet();
+            }
+        });
+
+        builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+//                "Cancel" button is clicked, dismiss the dialog
+                if (dialogInterface != null) {
+                    dialogInterface.dismiss();
+                }
+            }
+        });
+
+        AlertDialog alertDialog = builder.create();
+        alertDialog.show();
+
+    }
+
+    //    Delete the pet from the database
+    private void deletePet() {
+
+        int rowsDeleted = getContentResolver().delete(currentPetUri, null, null);
+
+        if (rowsDeleted != 0) {
+            Toast.makeText(this, "Pet deleted ", Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(this, "Error deleting pet ", Toast.LENGTH_SHORT).show();
+        }
+
+        finish();
     }
 }

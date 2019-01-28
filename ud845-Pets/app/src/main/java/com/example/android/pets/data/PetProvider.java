@@ -189,7 +189,6 @@ public class PetProvider extends ContentProvider {
 
         final int match = sUriMatcher.match(uri);
 
-
         getContext().getContentResolver().notifyChange(uri, null);
 
         switch (match) {
