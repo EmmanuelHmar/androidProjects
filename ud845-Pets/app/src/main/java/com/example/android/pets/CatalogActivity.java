@@ -15,10 +15,12 @@
  */
 package com.example.android.pets;
 
+import android.app.AlertDialog;
 import android.app.LoaderManager;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.CursorLoader;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
@@ -32,6 +34,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.example.android.pets.data.PetContract;
 import com.example.android.pets.data.PetCursorAdapter;
@@ -111,6 +114,7 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
             // Respond to a click on the "Delete all entries" menu option
             case R.id.action_delete_all_entries:
                 // Do nothing for now
+                deleteAllPetsDialog();
                 return true;
         }
         return super.onOptionsItemSelected(item);
@@ -203,5 +207,43 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
 //        We need to make sure we are no longer using it
         adapter.swapCursor(null);
 
+    }
+
+    //    Dialog to ask if we want to delete all the pets in the database
+    private void deleteAllPetsDialog() {
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage(R.string.delete_dialog_msg);
+        builder.setPositiveButton(R.string.delete, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                deletePets();
+            }
+        });
+        builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                if (dialogInterface != null) {
+                    dialogInterface.dismiss();
+                }
+            }
+        });
+
+        AlertDialog alertDialog = builder.create();
+        alertDialog.show();
+    }
+
+    private void deletePets() {
+
+        int deleteRows = getContentResolver().delete(PetContract.PetEntry.CONTENT_URI, null, null);
+
+        Log.d(TAG, "deletePets: " + PetContract.PetEntry.CONTENT_URI);
+        Log.d(TAG, "deletePets: Rows " + deleteRows);
+
+        if (deleteRows != 0) {
+            Toast.makeText(this, "Deleted pets", Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(this, "Error deleting pets", Toast.LENGTH_SHORT).show();
+        }
     }
 }

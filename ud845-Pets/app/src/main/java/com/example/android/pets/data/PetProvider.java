@@ -75,7 +75,9 @@ public class PetProvider extends ContentProvider {
                 throw new IllegalArgumentException("Cannot query unknown URI " + uri);
         }
 
-//        cursor.setNotificationUri(getContext().getContentResolver(), uri);
+//        Set notification URI on the cursor.
+//        If the data at this URI changes, then we know e need to update the cursor.
+        cursor.setNotificationUri(getContext().getContentResolver(), uri);
 
         return cursor;
     }
@@ -189,7 +191,7 @@ public class PetProvider extends ContentProvider {
 
         final int match = sUriMatcher.match(uri);
 
-        getContext().getContentResolver().notifyChange(uri, null);
+//        getContext().getContentResolver().notifyChange(uri, null);
 
         switch (match) {
             case PETS:
