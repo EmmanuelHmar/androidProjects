@@ -10,6 +10,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -87,6 +88,9 @@ public class MainActivity extends AppCompatActivity {
         Cursor cursor = db.query(ItemContract.ItemEntry.TABLE_NAME, projection, null, null, null, null, null);
 
         ListView listView = (ListView) findViewById(R.id.list_item);
+        View view = (View) findViewById(R.id.main_view);
+
+        listView.setEmptyView(view);
 
         ItemCursorAdapter cursorAdapter = new ItemCursorAdapter(this, cursor);
 
