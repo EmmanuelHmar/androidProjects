@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">InventoryApp</string>
+    <string name="add_dummy_item">Add dummy item</string>
+    <string name="delete_all_items">Delete all items</string>
 </resources>

@@ -1,11 +1,13 @@
 package com.emmanuelhmar.inventoryapp;
 
 import android.content.ContentValues;
+import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -28,7 +30,24 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        FloatingActionButton fab = findViewById(R.id.fab);
+
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+//                Snackbar.make(view, "Going to Add items", Snackbar.LENGTH_LONG).
+//                        setAction("action", null);
+                Toast.makeText(MainActivity.this, "SNACK", Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(MainActivity.this, EditorActivity.class);
+                startActivity(intent);
+            }
+        });
+
         dbHelper = new ItemDbHelper(this);
+
+//        ListView listView = (ListView) findViewById(R.id.list_item);
+//        View view = (View) findViewById(R.id.main_view);
+//        listView.setEmptyView(view);
 
         displayItems();
     }
@@ -90,12 +109,12 @@ public class MainActivity extends AppCompatActivity {
         ListView listView = (ListView) findViewById(R.id.list_item);
         View view = (View) findViewById(R.id.main_view);
 
-        listView.setEmptyView(view);
-
         ItemCursorAdapter cursorAdapter = new ItemCursorAdapter(this, cursor);
 
+        listView.setEmptyView(view);
         listView.setAdapter(cursorAdapter);
 
-        cursorAdapter.changeCursor(cursor);
+
+//        cursorAdapter.changeCursor(cursor);
     }
 }
