@@ -10,9 +10,10 @@ public class ItemDbHelper extends SQLiteOpenHelper {
 
     private static final String SQL_CREATE_ENTRIES = "CREATE TABLE " + ItemContract.ItemEntry.TABLE_NAME +
             " (" + ItemContract.ItemEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT ," +
+            ItemContract.ItemEntry.COLUMN_NAME_NAME + " TEXT NOT NULL, " +
             ItemContract.ItemEntry.COLUMN_NAME_PRICE + " INTEGER NOT NULL," + ItemContract.ItemEntry.COLUMN_NAME_QUANTITY +
             " INTEGER NOT NULL DEFAULT 0," + ItemContract.ItemEntry.COLUMN_NAME_SUPPLIER + " TEXT NOT NULL," +
-            ItemContract.ItemEntry.COLUMN_NAME_PICTURE + "BLOB);";
+            ItemContract.ItemEntry.COLUMN_NAME_PICTURE + " BLOB);";
 
     private static final String SQL_DELETE_ENTRIES = "DROP TABLE IF EXISTS " + ItemContract.ItemEntry.TABLE_NAME;
 
