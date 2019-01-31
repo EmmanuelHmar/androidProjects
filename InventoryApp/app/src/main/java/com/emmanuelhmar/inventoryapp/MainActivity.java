@@ -1,7 +1,10 @@
 package com.emmanuelhmar.inventoryapp;
 
+import android.app.LoaderManager;
 import android.content.ContentValues;
+import android.content.CursorLoader;
 import android.content.Intent;
+import android.content.Loader;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
@@ -10,8 +13,6 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v4.app.LoaderManager;
-import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -28,6 +29,8 @@ import java.io.ByteArrayOutputStream;
 
 public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
     private ItemDbHelper dbHelper;
+    private ItemCursorAdapter cursorAdapter;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,6 +43,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(MainActivity.this, EditorActivity.class);
+
                 startActivity(intent);
             }
         });
@@ -47,7 +51,8 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         dbHelper = new ItemDbHelper(this);
 //
 //
-        displayItems();
+        getLoaderManager().initLoader(0, null, this);
+//        displayItems();
     }
 
     //    Inflate the menu options
@@ -108,7 +113,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         ListView listView = (ListView) findViewById(R.id.list_item);
         View view = (View) findViewById(R.id.main_view);
 
-        ItemCursorAdapter cursorAdapter = new ItemCursorAdapter(this, cursor);
+        cursorAdapter = new ItemCursorAdapter(this, cursor);
 
         listView.setEmptyView(view);
         listView.setAdapter(cursorAdapter);
@@ -124,16 +129,31 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         String[] projection = {ItemContract.ItemEntry._ID, ItemContract.ItemEntry.COLUMN_NAME_NAME,
                 ItemContract.ItemEntry.COLUMN_NAME_PRICE, ItemContract.ItemEntry.COLUMN_NAME_PICTURE};
 
-        return null;
+        return new CursorLoader(getApplicationContext(), ItemContract.ItemEntry.CONTENT_URI, projection, null, null, null);
     }
 
     @Override
-    public void onLoadFinished(@NonNull Loader<Cursor> loader, Cursor cursor) {
+    public void onLoadFinished(android.content.Loader<Cursor> loader, Cursor cursor) {
+        ListView listView = findViewById(R.id.list_item);
+        View view = findViewById(R.id.main_view);
 
+        cursorAdapter = new ItemCursorAdapter(this, cursor);
+
+        listView.setEmptyView(view);
+        listView.setAdapter(cursorAdapter);
+
+        cursorAdapter.swapCursor(cursor);
     }
 
     @Override
-    public void onLoaderReset(@NonNull Loader<Cursor> loader) {
+    public void onLoaderReset(android.content.Loader<Cursor> loader) {
 
+        cursorAdapter.swapCursor(null);
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+//        displayItems();
     }
 }

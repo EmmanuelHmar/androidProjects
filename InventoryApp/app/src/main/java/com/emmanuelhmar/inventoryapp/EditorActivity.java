@@ -107,8 +107,6 @@ public class EditorActivity extends AppCompatActivity {
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-            } else {
-                Toast.makeText(getApplicationContext(), "ERRO getting image", Toast.LENGTH_SHORT).show();
             }
         }
         super.onActivityResult(requestCode, resultCode, data);
