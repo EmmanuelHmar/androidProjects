@@ -7,7 +7,11 @@ import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -22,7 +26,7 @@ import com.emmanuelhmar.inventoryapp.data.ItemDbHelper;
 
 import java.io.ByteArrayOutputStream;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
     private ItemDbHelper dbHelper;
 
     @Override
@@ -35,23 +39,18 @@ public class MainActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-//                Snackbar.make(view, "Going to Add items", Snackbar.LENGTH_LONG).
-//                        setAction("action", null);
-                Toast.makeText(MainActivity.this, "SNACK", Toast.LENGTH_SHORT).show();
                 Intent intent = new Intent(MainActivity.this, EditorActivity.class);
                 startActivity(intent);
             }
         });
 
         dbHelper = new ItemDbHelper(this);
-
-//        ListView listView = (ListView) findViewById(R.id.list_item);
-//        View view = (View) findViewById(R.id.main_view);
-//        listView.setEmptyView(view);
-
+//
+//
         displayItems();
     }
 
+    //    Inflate the menu options
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
@@ -78,7 +77,7 @@ public class MainActivity extends AppCompatActivity {
 
         Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.panda);
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
+        bitmap.compress(Bitmap.CompressFormat.WEBP, 70, stream);
 
         byte[] b = stream.toByteArray();
 //        String image = Base64.encode(b);
@@ -92,9 +91,9 @@ public class MainActivity extends AppCompatActivity {
         long row = db.insert(ItemContract.ItemEntry.TABLE_NAME, null, contentValues);
 
         if (row != 0) {
-            Toast.makeText(this, "added " + row, Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(), "added " + row, Toast.LENGTH_SHORT).show();
         } else {
-            Toast.makeText(this, "error " + row, Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(), "error " + row, Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -116,5 +115,25 @@ public class MainActivity extends AppCompatActivity {
 
 
 //        cursorAdapter.changeCursor(cursor);
+    }
+
+    @NonNull
+    @Override
+    public Loader<Cursor> onCreateLoader(int i, @Nullable Bundle bundle) {
+
+        String[] projection = {ItemContract.ItemEntry._ID, ItemContract.ItemEntry.COLUMN_NAME_NAME,
+                ItemContract.ItemEntry.COLUMN_NAME_PRICE, ItemContract.ItemEntry.COLUMN_NAME_PICTURE};
+
+        return null;
+    }
+
+    @Override
+    public void onLoadFinished(@NonNull Loader<Cursor> loader, Cursor cursor) {
+
+    }
+
+    @Override
+    public void onLoaderReset(@NonNull Loader<Cursor> loader) {
+
     }
 }
