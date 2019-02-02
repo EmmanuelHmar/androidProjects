@@ -159,8 +159,10 @@ public class EditorActivity extends AppCompatActivity {
 //        If the save button is hit
         switch (item.getItemId()) {
             case R.id.save_item:
-                Toast.makeText(getApplicationContext(), "ITEM HIT", Toast.LENGTH_SHORT).show();
                 saveItemData();
+                return true;
+            case R.id.delete_item:
+                deleteItem();
                 return true;
             case R.id.home:
                 NavUtils.navigateUpFromSameTask(this);
@@ -168,6 +170,19 @@ public class EditorActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private void deleteItem() {
+        Log.d(TAG, "deleteItem: URI: " + uri);
+        int rowDeleted = getContentResolver().delete(uri,null, null);
+
+        if (rowDeleted != 0) {
+            Toast.makeText(this, "Item deleted", Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(this,"Error deleting", Toast.LENGTH_SHORT).show();
+        }
+
+        finish();
     }
 
 

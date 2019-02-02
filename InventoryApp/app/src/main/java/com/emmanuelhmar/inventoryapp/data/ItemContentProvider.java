@@ -122,7 +122,7 @@ public class ItemContentProvider extends ContentProvider {
             case ITEMS:
                 return deletePets(uri, selection, selectionArgs);
             case ITEM_ID:
-                selection = ItemContract.ItemEntry.TABLE_ID + "?=";
+                selection = ItemContract.ItemEntry.TABLE_ID + "=?";
                 selectionArgs = new String[]{String.valueOf(ContentUris.parseId(uri))};
                 return deletePets(uri, selection, selectionArgs);
             default:
