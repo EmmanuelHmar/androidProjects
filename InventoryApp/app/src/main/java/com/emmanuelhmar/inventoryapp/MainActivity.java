@@ -1,9 +1,11 @@
 package com.emmanuelhmar.inventoryapp;
 
+import android.app.AlertDialog;
 import android.app.LoaderManager;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.CursorLoader;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
@@ -51,10 +53,8 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         });
 
         dbHelper = new ItemDbHelper(this);
-//
-//
+//        Initiate the loader
         getLoaderManager().initLoader(0, null, this);
-//        displayItems();
     }
 
     //    Inflate the menu options
@@ -74,8 +74,9 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 //                Toast.makeText(this, "TESTING DUMMY", Toast.LENGTH_SHORT).show();
                 return true;
             case R.id.delete_all_items:
-                deleteAllItems();
-                displayItems();
+//                deleteAllItems();
+                createConfirmationDialog();
+//                displayItems();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -133,8 +134,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
         listView.setEmptyView(view);
         listView.setAdapter(cursorAdapter);
-
-
     }
 
     @NonNull
@@ -189,5 +188,34 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     protected void onDestroy() {
         dbHelper.close();
         super.onDestroy();
+    }
+
+//    Create an alertDialog when the delete all pets button is clicked
+    private void createConfirmationDialog() {
+        final AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+        builder.setMessage(getString(R.string.confirm_delete)).setTitle(R.string.delete_all_items);
+
+//        Add the buttons
+        builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                Toast.makeText(MainActivity.this, "Items deleted", Toast.LENGTH_SHORT).show();
+                deleteAllItems();
+            }
+        });
+
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                if (dialogInterface != null) {
+                    dialogInterface.dismiss();
+                }
+            }
+        });
+
+        AlertDialog dialog = builder.create();
+
+        dialog.show();
+
     }
 }

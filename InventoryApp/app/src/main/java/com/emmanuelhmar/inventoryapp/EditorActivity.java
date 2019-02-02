@@ -1,6 +1,7 @@
 package com.emmanuelhmar.inventoryapp;
 
 import android.content.ContentValues;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -12,10 +13,12 @@ import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TextInputEditText;
 import android.support.v4.app.NavUtils;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.Toast;
@@ -31,6 +34,12 @@ public class EditorActivity extends AppCompatActivity {
     private static final String TAG = EditorActivity.class.getSimpleName();
     private final int PICK_IMAGE_REQUEST = 1;
     private Uri uri;
+    private TextInputEditText item_name;
+    private TextInputEditText item_price;
+    private TextInputEditText item_quantity;
+    private TextInputEditText item_supplier;
+    private ImageView item_image;
+    private boolean itemWasTouched;
 
 
     @Override
@@ -38,24 +47,32 @@ public class EditorActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_editor);
 
+//        get the data passed from MainActivity
         uri = getIntent().getData();
 
+        item_name = findViewById(R.id.item_name);
+        item_price = findViewById(R.id.item_price);
+        item_quantity = findViewById(R.id.item_quantity);
+        item_supplier = findViewById(R.id.item_supplier);
+        item_image = findViewById(R.id.item_image);
+
+//        Set the onTouchListener for when item is touched
+        item_name.setOnTouchListener(itemTouched);
+        item_price.setOnTouchListener(itemTouched);
+        item_quantity.setOnTouchListener(itemTouched);
+        item_supplier.setOnTouchListener(itemTouched);
+        item_image.setOnTouchListener(itemTouched);
+
         if (uri == null) {
-            setTitle(R.string.insert_item);
+            setTitle(R.string.add_item);
         } else {
             setTitle(R.string.edit_item);
             updateItemData();
         }
 
-
     }
 
     private void updateItemData() {
-        TextInputEditText item_name = findViewById(R.id.item_name);
-        TextInputEditText item_price = findViewById(R.id.item_price);
-        TextInputEditText item_quantity = findViewById(R.id.item_quantity);
-        TextInputEditText item_supplier = findViewById(R.id.item_supplier);
-        ImageView item_image = findViewById(R.id.item_image);
 
         try (Cursor cursor = getContentResolver().query(uri, null, null, null, null)) {
             if (cursor != null) {
@@ -73,11 +90,6 @@ public class EditorActivity extends AppCompatActivity {
     }
 
     private void saveItemData() {
-        TextInputEditText item_name = findViewById(R.id.item_name);
-        TextInputEditText item_price = findViewById(R.id.item_price);
-        TextInputEditText item_quantity = findViewById(R.id.item_quantity);
-        TextInputEditText item_supplier = findViewById(R.id.item_supplier);
-        ImageView item_image = findViewById(R.id.item_image);
 
 //        TODO: add errors for views here
 
@@ -100,7 +112,7 @@ public class EditorActivity extends AppCompatActivity {
         values.put(ItemContract.ItemEntry.COLUMN_NAME_SUPPLIER, supplier);
         values.put(ItemContract.ItemEntry.COLUMN_NAME_PICTURE, blob);
 
-        if (getTitle().equals(getString(R.string.insert_item))) {
+        if (getTitle().equals(getString(R.string.add_item))) {
 
             Uri newURI = getContentResolver().insert(ItemContract.ItemEntry.CONTENT_URI, values);
 
@@ -130,12 +142,10 @@ public class EditorActivity extends AppCompatActivity {
         if (requestCode == PICK_IMAGE_REQUEST) {
             if (resultCode == RESULT_OK) {
                 Uri imageUri = data.getData();
-                Log.d(TAG, "onActivityResult: URI: " + imageUri);
                 try {
                     Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), imageUri);
                     ImageView image = findViewById(R.id.item_image);
 
-//                    Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.panda);
                     ByteArrayOutputStream stream = new ByteArrayOutputStream();
                     bitmap.compress(Bitmap.CompressFormat.WEBP, 50, stream);
                     InputStream inputStream = this.getContentResolver().openInputStream(imageUri);
@@ -162,24 +172,58 @@ public class EditorActivity extends AppCompatActivity {
                 saveItemData();
                 return true;
             case R.id.delete_item:
-                deleteItem();
+                deleteConfirmationDialog();
                 return true;
-            case R.id.home:
-                NavUtils.navigateUpFromSameTask(this);
+            case android.R.id.home:
+                if (!itemWasTouched) {
+                    NavUtils.navigateUpFromSameTask(this);
+                    return true;
+                }
+
+                DialogInterface.OnClickListener dialogInterface = new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        NavUtils.navigateUpFromSameTask(EditorActivity.this);
+                    }
+                };
+
+                Toast.makeText(this, "touched", Toast.LENGTH_SHORT).show();
+
+                returnHomeDialog(dialogInterface);
+
                 return true;
         }
 
         return super.onOptionsItemSelected(item);
     }
 
+    private void returnHomeDialog(DialogInterface.OnClickListener dialogInterface) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(EditorActivity.this);
+        builder.setMessage("Discard changes?").setTitle("Go home");
+
+        builder.setPositiveButton("Yes", dialogInterface);
+
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                if (dialogInterface != null) {
+                    dialogInterface.dismiss();
+                }
+            }
+        });
+
+        AlertDialog alertDialog = builder.create();
+        alertDialog.show();
+    }
+
     private void deleteItem() {
         Log.d(TAG, "deleteItem: URI: " + uri);
-        int rowDeleted = getContentResolver().delete(uri,null, null);
+        int rowDeleted = getContentResolver().delete(uri, null, null);
 
         if (rowDeleted != 0) {
             Toast.makeText(this, "Item deleted", Toast.LENGTH_SHORT).show();
         } else {
-            Toast.makeText(this,"Error deleting", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Error deleting", Toast.LENGTH_SHORT).show();
         }
 
         finish();
@@ -187,10 +231,8 @@ public class EditorActivity extends AppCompatActivity {
 
 
     public void buttonClick(View view) {
-//        Toast.makeText(EditorActivity.this, "Button CLicked", Toast.LENGTH_SHORT).show();
         Log.d(TAG, "onClick: Button");
         Intent intent = new Intent(Intent.ACTION_PICK);
-//        intent.addCategory(Intent.CATEGORY_OPENABLE);
         intent.setType("image/*");
         String[] mimeTypes = {"image/jpeg", "image/png"};
         intent.putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes);
@@ -223,18 +265,14 @@ public class EditorActivity extends AppCompatActivity {
 
     }
 
-    //    public Bitmap decodeSampleBitmapFromResource(Resources res, int resId, int reqWidth, int reqHeight) throws FileNotFoundException {
     public Bitmap decodeSampleBitmapFromResource(InputStream inputStream, Uri uri, int reqWidth, int reqHeight) throws FileNotFoundException {
 
 //        First decode with InJustDecodeBounds = true to check the dimensions
-//        InputStream inputStream = this.getContentResolver().openInputStream(uri);
         Log.d(TAG, "decodeSampleBitmapFromResource: INPUTSTREAM : " + inputStream);
         final BitmapFactory.Options options = new BitmapFactory.Options();
         options.inJustDecodeBounds = true;
 
         BitmapFactory.decodeStream(getContentResolver().openInputStream(uri), null, options);
-//            BitmapFactory.decodeStream(inputStream, null, options);
-//        BitmapFactory.decodeResource(res, resId, options);
 
 //        Calculate inSampleSize
         options.inSampleSize = calculateInSampleSize(options, reqWidth, reqHeight);
@@ -242,11 +280,9 @@ public class EditorActivity extends AppCompatActivity {
 //        decode bitmap with insamplesize set
         options.inJustDecodeBounds = false;
 
-//        return BitmapFactory.decodeResource(res, resId, options);
 
         BitmapFactory.Options o2 = new BitmapFactory.Options();
         o2.inSampleSize = calculateInSampleSize(options, reqWidth, reqHeight);
-//        return BitmapFactory.decodeStream(inputStream, null, options);
 
         return BitmapFactory.decodeStream(getContentResolver().openInputStream(uri), null, o2);
     }
@@ -255,4 +291,58 @@ public class EditorActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
     }
+
+    @Override
+    public void onBackPressed() {
+
+        if (!itemWasTouched) {
+            NavUtils.navigateUpFromSameTask(EditorActivity.this);
+            finish();
+        } else {
+
+            DialogInterface.OnClickListener dialogInterface = new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    finish();
+                }
+            };
+            returnHomeDialog(dialogInterface);
+        }
+    }
+
+    private void deleteConfirmationDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+        builder.setMessage(R.string.delete_item).setTitle(R.string.confirm_delete);
+
+        builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                deleteItem();
+            }
+        });
+
+        builder.setNegativeButton("Discard", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                if (dialogInterface != null) {
+                    dialogInterface.dismiss();
+                }
+            }
+        });
+
+        AlertDialog alertDialog = builder.create();
+
+        alertDialog.show();
+    }
+
+    //    Change the onTouch to true if views were touched
+    private View.OnTouchListener itemTouched = new View.OnTouchListener() {
+        @Override
+        public boolean onTouch(View view, MotionEvent motionEvent) {
+            itemWasTouched = true;
+            return false;
+        }
+    };
+
 }
