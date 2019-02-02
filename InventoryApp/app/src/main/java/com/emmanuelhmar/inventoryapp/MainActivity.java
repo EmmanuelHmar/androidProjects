@@ -9,6 +9,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -30,7 +31,6 @@ import java.io.ByteArrayOutputStream;
 public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
     private ItemDbHelper dbHelper;
     private ItemCursorAdapter cursorAdapter;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,15 +68,29 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         switch (item.getItemId()) {
             case R.id.dummy_item:
                 insertDummyPet();
+                displayItems();
 //                Toast.makeText(this, "TESTING DUMMY", Toast.LENGTH_SHORT).show();
+                return true;
+            case R.id.delete_all_items:
+                deleteAllItems();
+                displayItems();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
     }
 
+//    delete all the items in the database
+    private void deleteAllItems() {
+
+        int rows = getContentResolver().delete(ItemContract.ItemEntry.CONTENT_URI, null, null);
+
+        if (rows != 0) {
+            Toast.makeText(this, "Deleted all Pets", Toast.LENGTH_SHORT).show();
+        }
+    }
+
     private void insertDummyPet() {
-        SQLiteDatabase db = dbHelper.getWritableDatabase();
 
         ContentValues contentValues = new ContentValues();
 
@@ -93,12 +107,12 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         contentValues.put(ItemContract.ItemEntry.COLUMN_NAME_SUPPLIER, "NIKE");
         contentValues.put(ItemContract.ItemEntry.COLUMN_NAME_PICTURE, b);
 
-        long row = db.insert(ItemContract.ItemEntry.TABLE_NAME, null, contentValues);
+        Uri uri = getContentResolver().insert(ItemContract.ItemEntry.CONTENT_URI, contentValues);
 
-        if (row != 0) {
-            Toast.makeText(getApplicationContext(), "added " + row, Toast.LENGTH_SHORT).show();
+        if (uri != null) {
+            Toast.makeText(getApplicationContext(), "added pet", Toast.LENGTH_SHORT).show();
         } else {
-            Toast.makeText(getApplicationContext(), "error " + row, Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(), "error ", Toast.LENGTH_SHORT).show();
         }
     }
 

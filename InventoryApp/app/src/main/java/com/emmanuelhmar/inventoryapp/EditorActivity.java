@@ -2,7 +2,6 @@ package com.emmanuelhmar.inventoryapp;
 
 import android.content.ContentValues;
 import android.content.Intent;
-import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
@@ -21,7 +20,6 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.emmanuelhmar.inventoryapp.data.ItemContract;
-import com.emmanuelhmar.inventoryapp.data.ItemDbHelper;
 
 import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
@@ -31,8 +29,6 @@ import java.io.InputStream;
 public class EditorActivity extends AppCompatActivity {
     private static final String TAG = EditorActivity.class.getSimpleName();
     private final int PICK_IMAGE_REQUEST = 1;
-    private ImageView item_image;
-    private Intent intent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,11 +38,11 @@ public class EditorActivity extends AppCompatActivity {
     }
 
     private void saveItemData() {
-        TextInputEditText item_name = (TextInputEditText) findViewById(R.id.item_name);
-        TextInputEditText item_price = (TextInputEditText) findViewById(R.id.item_price);
-        TextInputEditText item_quantity = (TextInputEditText) findViewById(R.id.item_quantity);
-        TextInputEditText item_supplier = (TextInputEditText) findViewById(R.id.item_supplier);
-        ImageView item_image = (ImageView) findViewById(R.id.item_image);
+        TextInputEditText item_name = findViewById(R.id.item_name);
+        TextInputEditText item_price = findViewById(R.id.item_price);
+        TextInputEditText item_quantity = findViewById(R.id.item_quantity);
+        TextInputEditText item_supplier = findViewById(R.id.item_supplier);
+        ImageView item_image = findViewById(R.id.item_image);
 
         String name = item_name.getText().toString().trim();
         int price = Integer.valueOf(item_price.getText().toString().trim());
@@ -59,10 +55,6 @@ public class EditorActivity extends AppCompatActivity {
         bitmap.compress(Bitmap.CompressFormat.WEBP, 50, stream);
         byte[] blob = stream.toByteArray();
 
-        ItemDbHelper dbHelper = new ItemDbHelper(this);
-
-        SQLiteDatabase db = dbHelper.getWritableDatabase();
-
         ContentValues values = new ContentValues();
 
         values.put(ItemContract.ItemEntry.COLUMN_NAME_NAME, name);
@@ -71,18 +63,19 @@ public class EditorActivity extends AppCompatActivity {
         values.put(ItemContract.ItemEntry.COLUMN_NAME_SUPPLIER, supplier);
         values.put(ItemContract.ItemEntry.COLUMN_NAME_PICTURE, blob);
 
-        long rowInserted = db.insert(ItemContract.ItemEntry.TABLE_NAME, null, values);
+        Uri uri = getContentResolver().insert(ItemContract.ItemEntry.CONTENT_URI, values);
 
-        if (rowInserted != 0) {
+        if (uri != null) {
             Toast.makeText(getApplicationContext(), "Item inserted", Toast.LENGTH_SHORT).show();
         } else {
             Toast.makeText(getApplicationContext(), "Error inserting", Toast.LENGTH_SHORT).show();
         }
 
+        finish();
     }
 
 
-    //    Get an image from gallery when the button is pre
+    //    Get an image from gallery when the button is pressed, this is called when image is returned
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         if (requestCode == PICK_IMAGE_REQUEST) {
@@ -91,19 +84,13 @@ public class EditorActivity extends AppCompatActivity {
                 Log.d(TAG, "onActivityResult: URI: " + imageUri);
                 try {
                     Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), imageUri);
-                    ImageView image = (ImageView) findViewById(R.id.item_image);
+                    ImageView image = findViewById(R.id.item_image);
 
 //                    Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.panda);
                     ByteArrayOutputStream stream = new ByteArrayOutputStream();
                     bitmap.compress(Bitmap.CompressFormat.WEBP, 50, stream);
                     InputStream inputStream = this.getContentResolver().openInputStream(imageUri);
-//                    BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
-//                    String stream = bufferedReader.readLine();
-//                    Log.d(TAG, "onActivityResult: Stream " + stream);
-//                    int resId = Integer.valueOf(stream);
                     image.setImageBitmap(decodeSampleBitmapFromResource(inputStream, imageUri, 150, 150));
-//                    image.setImageBitmap(decodeSampleBitmapFromResource(getResources(), resId, 150, 150));
-//                    image.setImageBitmap(bitmap);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -138,7 +125,7 @@ public class EditorActivity extends AppCompatActivity {
     public void buttonClick(View view) {
 //        Toast.makeText(EditorActivity.this, "Button CLicked", Toast.LENGTH_SHORT).show();
         Log.d(TAG, "onClick: Button");
-        intent = new Intent(Intent.ACTION_PICK);
+        Intent intent = new Intent(Intent.ACTION_PICK);
 //        intent.addCategory(Intent.CATEGORY_OPENABLE);
         intent.setType("image/*");
         String[] mimeTypes = {"image/jpeg", "image/png"};

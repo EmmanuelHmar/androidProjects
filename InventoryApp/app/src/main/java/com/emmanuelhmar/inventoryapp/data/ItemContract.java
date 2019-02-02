@@ -17,6 +17,7 @@ public class ItemContract {
         //        The content URI to access the item data
         public static final Uri CONTENT_URI = Uri.withAppendedPath(BASE_CONTENT_URI, PATH_ITEMS);
 
+//        For getType in Content Provider
         public static final String CONTENT_LIST_TYPE = ContentResolver.CURSOR_DIR_BASE_TYPE + "/" +
                 CONTENT_AUTHORITY + "/" + PATH_ITEMS;
 
