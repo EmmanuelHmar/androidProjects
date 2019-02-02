@@ -7,32 +7,116 @@
     android:padding="16dp">
 
     <TextView
-        android:id="@+id/item_name"
-        android:layout_width="match_parent"
+        android:id="@+id/name_holder"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:padding="16dp"
-        android:textAppearance="@style/TextAppearance.AppCompat.Large"
+        android:paddingStart="16dp"
+        android:text="Name: "
+        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+        android:textColor="@android:color/black"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/item_name"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:paddingStart="4dp"
+        android:paddingEnd="4dp"
+        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+        app:layout_constraintEnd_toStartOf="@id/guideline"
+        app:layout_constraintLeft_toRightOf="@id/name_holder"
+        app:layout_constraintStart_toEndOf="@id/name_holder"
         app:layout_constraintTop_toTopOf="parent"
         tools:text="Test" />
 
     <TextView
-        android:id="@+id/item_price"
-        android:layout_width="wrap_content"
+        android:id="@+id/price_holder"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:paddingLeft="16dp"
-        android:paddingRight="16dp"
+        android:paddingStart="16dp"
+        android:text="Price: "
         android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+        android:textColor="@android:color/black"
         app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/name_holder" />
+
+    <TextView
+        android:id="@+id/item_price"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:paddingLeft="4dp"
+        android:paddingRight="4dp"
+        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+        app:layout_constraintEnd_toStartOf="@id/guideline"
+        app:layout_constraintStart_toEndOf="@id/price_holder"
         app:layout_constraintTop_toBottomOf="@id/item_name"
         tools:text="$55" />
+
+    <TextView
+        android:id="@+id/quantity_holder"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:paddingStart="16dp"
+        android:text="Quantity: "
+        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+        android:textColor="@android:color/black"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/price_holder" />
+
+    <TextView
+        android:id="@+id/item_quantity"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:paddingLeft="4dp"
+        android:paddingRight="4dp"
+        android:text="9"
+        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+        app:layout_constraintEnd_toStartOf="@id/guideline"
+        app:layout_constraintStart_toEndOf="@id/quantity_holder"
+        app:layout_constraintTop_toBottomOf="@id/item_price" />
+
+    <TextView
+        android:id="@+id/supplier_holder"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:paddingStart="16dp"
+        android:text="Supplier: "
+        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+        android:textColor="@android:color/black"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/quantity_holder" />
+
+    <TextView
+        android:id="@+id/item_supplier"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:paddingLeft="4dp"
+        android:paddingRight="4dp"
+        android:layout_marginEnd="4dp"
+        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+        app:layout_constraintEnd_toStartOf="@id/guideline"
+        app:layout_constraintStart_toEndOf="@id/quantity_holder"
+        app:layout_constraintTop_toBottomOf="@id/item_quantity"
+        tools:text="Tesla" />
+
+    <android.support.constraint.Guideline
+        android:id="@+id/guideline"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent=".67"
+        app:layout_constraintRight_toLeftOf="@id/item_image" />
 
     <ImageView
         android:id="@+id/item_image"
         android:layout_width="120dp"
         android:layout_height="120dp"
+        android:contentDescription="@string/item_image"
         android:scaleType="centerCrop"
-        tools:background="@drawable/panda"
-        app:layout_constraintEnd_toEndOf="@id/item_name"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/guideline"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:background="@drawable/panda" />
 
 </android.support.constraint.ConstraintLayout>

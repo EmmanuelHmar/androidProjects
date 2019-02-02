@@ -1,8 +1,12 @@
+
 package com.emmanuelhmar.inventoryapp;
 
+import android.app.LoaderManager;
 import android.content.ContentValues;
+import android.content.CursorLoader;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.Loader;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -30,7 +34,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 
-public class EditorActivity extends AppCompatActivity {
+public class EditorActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
     private static final String TAG = EditorActivity.class.getSimpleName();
     private final int PICK_IMAGE_REQUEST = 1;
     private Uri uri;
@@ -63,31 +67,16 @@ public class EditorActivity extends AppCompatActivity {
         item_supplier.setOnTouchListener(itemTouched);
         item_image.setOnTouchListener(itemTouched);
 
+//        If the data passed is null, set the Activity title to "Add Item" instead
         if (uri == null) {
             setTitle(R.string.add_item);
+            invalidateOptionsMenu();
         } else {
             setTitle(R.string.edit_item);
-            updateItemData();
-        }
-
-    }
-
-    private void updateItemData() {
-
-        try (Cursor cursor = getContentResolver().query(uri, null, null, null, null)) {
-            if (cursor != null) {
-                cursor.moveToFirst();
-
-                item_name.setText(cursor.getString(cursor.getColumnIndexOrThrow(ItemContract.ItemEntry.COLUMN_NAME_NAME)));
-                item_price.setText(cursor.getString(cursor.getColumnIndexOrThrow(ItemContract.ItemEntry.COLUMN_NAME_PRICE)));
-                item_quantity.setText(cursor.getString(cursor.getColumnIndexOrThrow(ItemContract.ItemEntry.COLUMN_NAME_QUANTITY)));
-                item_supplier.setText(cursor.getString(cursor.getColumnIndexOrThrow(ItemContract.ItemEntry.COLUMN_NAME_SUPPLIER)));
-                byte[] bytes = cursor.getBlob(cursor.getColumnIndexOrThrow(ItemContract.ItemEntry.COLUMN_NAME_PICTURE));
-                Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
-                item_image.setImageBitmap(bitmap);
-            }
+            getLoaderManager().initLoader(0, null, this);
         }
     }
+
 
     private void saveItemData() {
 
@@ -156,6 +145,17 @@ public class EditorActivity extends AppCompatActivity {
             }
         }
         super.onActivityResult(requestCode, resultCode, data);
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+
+        if (uri == null) {
+            MenuItem delete = menu.findItem(R.id.delete_item);
+            delete.setVisible(false);
+        }
+
+        return super.onPrepareOptionsMenu(menu);
     }
 
     @Override
@@ -229,7 +229,7 @@ public class EditorActivity extends AppCompatActivity {
         finish();
     }
 
-
+    // When the Select Image button is clicked, create an intent that lets you choose pictures
     public void buttonClick(View view) {
         Log.d(TAG, "onClick: Button");
         Intent intent = new Intent(Intent.ACTION_PICK);
@@ -262,7 +262,6 @@ public class EditorActivity extends AppCompatActivity {
         }
 
         return inSampleSize;
-
     }
 
     public Bitmap decodeSampleBitmapFromResource(InputStream inputStream, Uri uri, int reqWidth, int reqHeight) throws FileNotFoundException {
@@ -279,7 +278,6 @@ public class EditorActivity extends AppCompatActivity {
 
 //        decode bitmap with insamplesize set
         options.inJustDecodeBounds = false;
-
 
         BitmapFactory.Options o2 = new BitmapFactory.Options();
         o2.inSampleSize = calculateInSampleSize(options, reqWidth, reqHeight);
@@ -345,4 +343,34 @@ public class EditorActivity extends AppCompatActivity {
         }
     };
 
+    @Override
+    public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
+        String[] projection = {ItemContract.ItemEntry._ID, ItemContract.ItemEntry.COLUMN_NAME_NAME, ItemContract.ItemEntry.COLUMN_NAME_QUANTITY, ItemContract.ItemEntry.COLUMN_NAME_PRICE,
+                ItemContract.ItemEntry.COLUMN_NAME_SUPPLIER, ItemContract.ItemEntry.COLUMN_NAME_PICTURE};
+
+        return new CursorLoader(getApplicationContext(), uri, projection, null, null, null);
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
+            if ( cursor.moveToFirst()){
+
+            item_name.setText(cursor.getString(cursor.getColumnIndexOrThrow(ItemContract.ItemEntry.COLUMN_NAME_NAME)));
+            item_price.setText(cursor.getString(cursor.getColumnIndexOrThrow(ItemContract.ItemEntry.COLUMN_NAME_PRICE)));
+            item_quantity.setText(cursor.getString(cursor.getColumnIndexOrThrow(ItemContract.ItemEntry.COLUMN_NAME_QUANTITY)));
+            item_supplier.setText(cursor.getString(cursor.getColumnIndexOrThrow(ItemContract.ItemEntry.COLUMN_NAME_SUPPLIER)));
+            byte[] bytes = cursor.getBlob(cursor.getColumnIndexOrThrow(ItemContract.ItemEntry.COLUMN_NAME_PICTURE));
+            Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+            item_image.setImageBitmap(bitmap);
+        }
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+        item_name.getText().clear();
+        item_price.getText().clear();
+        item_quantity.getText().clear();
+        item_supplier.getText().clear();
+        item_image.setImageBitmap(null);
+    }
 }

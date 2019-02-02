@@ -71,12 +71,9 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
             case R.id.dummy_item:
                 insertDummyPet();
                 displayItems();
-//                Toast.makeText(this, "TESTING DUMMY", Toast.LENGTH_SHORT).show();
                 return true;
             case R.id.delete_all_items:
-//                deleteAllItems();
                 createConfirmationDialog();
-//                displayItems();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -89,7 +86,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         int rows = getContentResolver().delete(ItemContract.ItemEntry.CONTENT_URI, null, null);
 
         if (rows != 0) {
-            Toast.makeText(this, "Deleted all Pets", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Deleted all items", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -113,7 +110,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         Uri uri = getContentResolver().insert(ItemContract.ItemEntry.CONTENT_URI, contentValues);
 
         if (uri != null) {
-            Toast.makeText(getApplicationContext(), "added pet", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(), "added item", Toast.LENGTH_SHORT).show();
         } else {
             Toast.makeText(getApplicationContext(), "error ", Toast.LENGTH_SHORT).show();
         }
@@ -123,6 +120,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         SQLiteDatabase db = dbHelper.getReadableDatabase();
 
         String[] projection = {ItemContract.ItemEntry._ID, ItemContract.ItemEntry.COLUMN_NAME_NAME,
+                ItemContract.ItemEntry.COLUMN_NAME_QUANTITY, ItemContract.ItemEntry.COLUMN_NAME_SUPPLIER,
                 ItemContract.ItemEntry.COLUMN_NAME_PRICE, ItemContract.ItemEntry.COLUMN_NAME_PICTURE};
 
         Cursor cursor = db.query(ItemContract.ItemEntry.TABLE_NAME, projection, null, null, null, null, null);
@@ -141,7 +139,8 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     public Loader<Cursor> onCreateLoader(int i, @Nullable Bundle bundle) {
 
         String[] projection = {ItemContract.ItemEntry._ID, ItemContract.ItemEntry.COLUMN_NAME_NAME,
-                ItemContract.ItemEntry.COLUMN_NAME_PRICE, ItemContract.ItemEntry.COLUMN_NAME_PICTURE};
+                ItemContract.ItemEntry.COLUMN_NAME_PRICE, ItemContract.ItemEntry.COLUMN_NAME_QUANTITY,
+                ItemContract.ItemEntry.COLUMN_NAME_SUPPLIER, ItemContract.ItemEntry.COLUMN_NAME_PICTURE};
 
         return new CursorLoader(getApplicationContext(), ItemContract.ItemEntry.CONTENT_URI, projection, null, null, null);
     }
@@ -190,10 +189,10 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         super.onDestroy();
     }
 
-//    Create an alertDialog when the delete all pets button is clicked
+    //    Create an alertDialog when the delete all pets button is clicked
     private void createConfirmationDialog() {
         final AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-        builder.setMessage(getString(R.string.confirm_delete)).setTitle(R.string.delete_all_items);
+        builder.setMessage(getString(R.string.delete_all_items)).setTitle(R.string.confirm_delete);
 
 //        Add the buttons
         builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
