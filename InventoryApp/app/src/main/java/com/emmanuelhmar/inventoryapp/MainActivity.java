@@ -1,6 +1,7 @@
 package com.emmanuelhmar.inventoryapp;
 
 import android.app.LoaderManager;
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.CursorLoader;
 import android.content.Intent;
@@ -19,6 +20,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -80,7 +82,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         }
     }
 
-//    delete all the items in the database
+    //    delete all the items in the database
     private void deleteAllItems() {
 
         int rows = getContentResolver().delete(ItemContract.ItemEntry.CONTENT_URI, null, null);
@@ -124,8 +126,8 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
         Cursor cursor = db.query(ItemContract.ItemEntry.TABLE_NAME, projection, null, null, null, null, null);
 
-        ListView listView = (ListView) findViewById(R.id.list_item);
-        View view = (View) findViewById(R.id.main_view);
+        ListView listView = findViewById(R.id.list_item);
+        View view = findViewById(R.id.main_view);
 
         cursorAdapter = new ItemCursorAdapter(this, cursor);
 
@@ -133,7 +135,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         listView.setAdapter(cursorAdapter);
 
 
-//        cursorAdapter.changeCursor(cursor);
     }
 
     @NonNull
@@ -156,6 +157,19 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         listView.setEmptyView(view);
         listView.setAdapter(cursorAdapter);
 
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
+                Intent intent = new Intent(getApplicationContext(), EditorActivity.class);
+
+                Uri uri = ContentUris.withAppendedId(ItemContract.ItemEntry.CONTENT_URI, id);
+
+                intent.setData(uri);
+
+                startActivity(intent);
+            }
+        });
+
         cursorAdapter.swapCursor(cursor);
     }
 
@@ -168,6 +182,12 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     @Override
     protected void onStart() {
         super.onStart();
-//        displayItems();
+        displayItems();
+    }
+
+    @Override
+    protected void onDestroy() {
+        dbHelper.close();
+        super.onDestroy();
     }
 }

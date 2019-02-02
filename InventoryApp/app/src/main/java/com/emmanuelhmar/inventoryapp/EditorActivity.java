@@ -2,6 +2,7 @@ package com.emmanuelhmar.inventoryapp;
 
 import android.content.ContentValues;
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
@@ -29,12 +30,46 @@ import java.io.InputStream;
 public class EditorActivity extends AppCompatActivity {
     private static final String TAG = EditorActivity.class.getSimpleName();
     private final int PICK_IMAGE_REQUEST = 1;
+    private Uri uri;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_editor);
 
+        uri = getIntent().getData();
+
+        if (uri == null) {
+            setTitle(R.string.insert_item);
+        } else {
+            setTitle(R.string.edit_item);
+            updateItemData();
+        }
+
+
+    }
+
+    private void updateItemData() {
+        TextInputEditText item_name = findViewById(R.id.item_name);
+        TextInputEditText item_price = findViewById(R.id.item_price);
+        TextInputEditText item_quantity = findViewById(R.id.item_quantity);
+        TextInputEditText item_supplier = findViewById(R.id.item_supplier);
+        ImageView item_image = findViewById(R.id.item_image);
+
+        try (Cursor cursor = getContentResolver().query(uri, null, null, null, null)) {
+            if (cursor != null) {
+                cursor.moveToFirst();
+
+                item_name.setText(cursor.getString(cursor.getColumnIndexOrThrow(ItemContract.ItemEntry.COLUMN_NAME_NAME)));
+                item_price.setText(cursor.getString(cursor.getColumnIndexOrThrow(ItemContract.ItemEntry.COLUMN_NAME_PRICE)));
+                item_quantity.setText(cursor.getString(cursor.getColumnIndexOrThrow(ItemContract.ItemEntry.COLUMN_NAME_QUANTITY)));
+                item_supplier.setText(cursor.getString(cursor.getColumnIndexOrThrow(ItemContract.ItemEntry.COLUMN_NAME_SUPPLIER)));
+                byte[] bytes = cursor.getBlob(cursor.getColumnIndexOrThrow(ItemContract.ItemEntry.COLUMN_NAME_PICTURE));
+                Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+                item_image.setImageBitmap(bitmap);
+            }
+        }
     }
 
     private void saveItemData() {
@@ -43,6 +78,8 @@ public class EditorActivity extends AppCompatActivity {
         TextInputEditText item_quantity = findViewById(R.id.item_quantity);
         TextInputEditText item_supplier = findViewById(R.id.item_supplier);
         ImageView item_image = findViewById(R.id.item_image);
+
+//        TODO: add errors for views here
 
         String name = item_name.getText().toString().trim();
         int price = Integer.valueOf(item_price.getText().toString().trim());
@@ -63,17 +100,29 @@ public class EditorActivity extends AppCompatActivity {
         values.put(ItemContract.ItemEntry.COLUMN_NAME_SUPPLIER, supplier);
         values.put(ItemContract.ItemEntry.COLUMN_NAME_PICTURE, blob);
 
-        Uri uri = getContentResolver().insert(ItemContract.ItemEntry.CONTENT_URI, values);
+        if (getTitle().equals(getString(R.string.insert_item))) {
 
-        if (uri != null) {
-            Toast.makeText(getApplicationContext(), "Item inserted", Toast.LENGTH_SHORT).show();
+            Uri newURI = getContentResolver().insert(ItemContract.ItemEntry.CONTENT_URI, values);
+
+            if (newURI != null) {
+                Toast.makeText(getApplicationContext(), "Item inserted", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(getApplicationContext(), "Error inserting", Toast.LENGTH_SHORT).show();
+            }
+            finish();
         } else {
-            Toast.makeText(getApplicationContext(), "Error inserting", Toast.LENGTH_SHORT).show();
+            int updatedRow = getContentResolver().update(uri, values, null, null);
+
+            if (updatedRow != 0) {
+                Toast.makeText(this, "Item updated", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(this, "error updating", Toast.LENGTH_SHORT).show();
+            }
+
+            finish();
         }
 
-        finish();
     }
-
 
     //    Get an image from gallery when the button is pressed, this is called when image is returned
     @Override
@@ -185,5 +234,10 @@ public class EditorActivity extends AppCompatActivity {
 //        return BitmapFactory.decodeStream(inputStream, null, options);
 
         return BitmapFactory.decodeStream(getContentResolver().openInputStream(uri), null, o2);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
     }
 }

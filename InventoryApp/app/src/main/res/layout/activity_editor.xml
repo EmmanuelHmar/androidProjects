@@ -7,18 +7,6 @@
     android:layout_margin="16dp"
     tools:context=".EditorActivity">
 
-
-    <TextView
-        android:id="@+id/overview_text"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="Item Overview"
-        android:textAppearance="@android:style/TextAppearance.DeviceDefault.Large"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:text="Overview" />
-
     <LinearLayout
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -107,8 +95,7 @@
         android:id="@+id/guideline"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        app:layout_constraintGuide_percent=".5" />
+        android:orientation="vertical" />
 
 
 </android.support.constraint.ConstraintLayout>

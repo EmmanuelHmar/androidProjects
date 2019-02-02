@@ -145,6 +145,19 @@ public class ItemContentProvider extends ContentProvider {
 
     @Override
     public int update(Uri uri, ContentValues contentValues, String selection, String[] selectionArgs) {
-        return 0;
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+
+        selection = ItemContract.ItemEntry.TABLE_ID + "=?";
+        selectionArgs = new String[]{String.valueOf(ContentUris.parseId(uri))};
+
+        int row =  db.update(ItemContract.ItemEntry.TABLE_NAME, contentValues, selection, selectionArgs);
+
+        if (row != 0) {
+            getContext().getContentResolver().notifyChange(uri, null);
+        }
+
+        return row;
     }
+
+
 }
