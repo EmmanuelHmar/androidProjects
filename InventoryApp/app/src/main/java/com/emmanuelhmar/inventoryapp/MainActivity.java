@@ -35,6 +35,7 @@ import java.io.ByteArrayOutputStream;
 public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
     private ItemDbHelper dbHelper;
     private ItemCursorAdapter cursorAdapter;
+    private boolean editOrDelete;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,6 +48,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(MainActivity.this, EditorActivity.class);
+                intent.putExtra("title", "Add item");
 
                 startActivity(intent);
             }
@@ -73,7 +75,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                 displayItems();
                 return true;
             case R.id.delete_all_items:
-                createConfirmationDialog();
+                deleteConfirmationDialog();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -91,7 +93,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     }
 
     private void insertDummyPet() {
-
         ContentValues contentValues = new ContentValues();
 
         Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.panda);
@@ -99,7 +100,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         bitmap.compress(Bitmap.CompressFormat.WEBP, 70, stream);
 
         byte[] b = stream.toByteArray();
-//        String image = Base64.encode(b);
 
         contentValues.put(ItemContract.ItemEntry.COLUMN_NAME_NAME, "cake");
         contentValues.put(ItemContract.ItemEntry.COLUMN_NAME_PRICE, 20);
@@ -116,6 +116,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         }
     }
 
+//    Display the items on the listView
     private void displayItems() {
         SQLiteDatabase db = dbHelper.getReadableDatabase();
 
@@ -134,6 +135,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         listView.setAdapter(cursorAdapter);
     }
 
+//    The Cursor Loader
     @NonNull
     @Override
     public Loader<Cursor> onCreateLoader(int i, @Nullable Bundle bundle) {
@@ -158,13 +160,8 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
-                Intent intent = new Intent(getApplicationContext(), EditorActivity.class);
 
-                Uri uri = ContentUris.withAppendedId(ItemContract.ItemEntry.CONTENT_URI, id);
-
-                intent.setData(uri);
-
-                startActivity(intent);
+                editOrDeleteDialog(id);
             }
         });
 
@@ -190,9 +187,9 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     }
 
     //    Create an alertDialog when the delete all pets button is clicked
-    private void createConfirmationDialog() {
+    private void deleteConfirmationDialog() {
         final AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-        builder.setMessage(getString(R.string.delete_all_items)).setTitle(R.string.confirm_delete);
+        builder.setMessage(getString(R.string.delete_all_items_message)).setTitle(R.string.confirm_delete);
 
 //        Add the buttons
         builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
@@ -213,8 +210,44 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         });
 
         AlertDialog dialog = builder.create();
-
         dialog.show();
+    }
 
+    private void editOrDeleteDialog(final long id) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+
+        builder.setMessage("Edit or Buy item").setTitle("Buy or Edit");
+
+        builder.setPositiveButton("Edit", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                Intent intent = new Intent(getApplicationContext(), EditorActivity.class);
+
+                Uri uri = ContentUris.withAppendedId(ItemContract.ItemEntry.CONTENT_URI, id);
+
+                intent.putExtra("title", "Edit item");
+                intent.setData(uri);
+
+                startActivity(intent);
+            }
+        });
+
+        builder.setNegativeButton("Buy", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                editOrDelete = true;
+                Intent intent = new Intent(getApplicationContext(), EditorActivity.class);
+
+                Uri uri = ContentUris.withAppendedId(ItemContract.ItemEntry.CONTENT_URI, id);
+
+                intent.putExtra("title", getString(R.string.buy_item));
+                intent.setData(uri);
+
+                startActivity(intent);
+            }
+        });
+
+        AlertDialog alertDialog = builder.create();
+        alertDialog.show();
     }
 }

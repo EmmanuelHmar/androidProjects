@@ -1,10 +1,12 @@
 <resources>
     <string name="app_name">InventoryApp</string>
     <string name="add_dummy_item">Add dummy item</string>
-    <string name="delete_all_items">Delete all items?</string>
+    <string name="delete_all_items">Delete all items</string>
+    <string name="delete_all_items_message">Are you sure you want to delete all items?</string>
     <string name="add_item">Add item</string>
     <string name="edit_item">Edit item</string>
     <string name="delete_item">Delete this item?</string>
     <string name="confirm_delete">Delete confirmation</string>
     <string name="item_image">item image</string>
+    <string name="buy_item">Buy item</string>
 </resources>

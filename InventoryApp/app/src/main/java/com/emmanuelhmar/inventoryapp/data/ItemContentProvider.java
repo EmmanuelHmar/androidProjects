@@ -7,6 +7,9 @@ import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
+import android.util.Log;
+
+import static android.content.ContentValues.TAG;
 
 public class ItemContentProvider extends ContentProvider {
 
@@ -18,11 +21,15 @@ public class ItemContentProvider extends ContentProvider {
     //    The code for the uriMatcher
     private static final int ITEMS = 100;
     private static final int ITEM_ID = 101;
+    private static final int SOLD = 200;
+    private static final int SOLD_ITEM = 201;
 
     static {
 //       addUri maps an authority and path to the int values
         uriMatcher.addURI(ItemContract.CONTENT_AUTHORITY, ItemContract.PATH_ITEMS, ITEMS);
+        uriMatcher.addURI(ItemContract.CONTENT_AUTHORITY, ItemContract.SOLD_ITEMS, SOLD);
         uriMatcher.addURI(ItemContract.CONTENT_AUTHORITY, ItemContract.PATH_ITEMS + "/#", ITEM_ID);
+        uriMatcher.addURI(ItemContract.CONTENT_AUTHORITY, ItemContract.SOLD_ITEMS + "/#", SOLD_ITEMt a);
     }
 
     @Override
@@ -77,6 +84,8 @@ public class ItemContentProvider extends ContentProvider {
     public Uri insert(Uri uri, ContentValues contentValues) {
 
         int match = uriMatcher.match(uri);
+
+        Log.d(TAG, "insertURI: match: " + match + " uri: " + uri);
 
         switch (match) {
 //            Can only insert 1 item at a time

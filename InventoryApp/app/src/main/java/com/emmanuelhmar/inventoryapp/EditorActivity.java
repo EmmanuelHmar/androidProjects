@@ -54,6 +54,9 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
 //        get the data passed from MainActivity
         uri = getIntent().getData();
 
+//        Set the title from data that was passed
+        setTitle(getIntent().getStringExtra("title"));
+
         item_name = findViewById(R.id.item_name);
         item_price = findViewById(R.id.item_price);
         item_quantity = findViewById(R.id.item_quantity);
@@ -68,11 +71,10 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         item_image.setOnTouchListener(itemTouched);
 
 //        If the data passed is null, set the Activity title to "Add Item" instead
-        if (uri == null) {
-            setTitle(R.string.add_item);
+        if (getTitle().equals(getString(R.string.add_item))) {
             invalidateOptionsMenu();
         } else {
-            setTitle(R.string.edit_item);
+            invalidateOptionsMenu();
             getLoaderManager().initLoader(0, null, this);
         }
     }
@@ -111,7 +113,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
                 Toast.makeText(getApplicationContext(), "Error inserting", Toast.LENGTH_SHORT).show();
             }
             finish();
-        } else {
+        } else if (getTitle().equals(getString(R.string.edit_item))) {
             int updatedRow = getContentResolver().update(uri, values, null, null);
 
             if (updatedRow != 0) {
@@ -121,6 +123,20 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
             }
 
             finish();
+        } else if (getTitle().equals(getString(R.string.buy_item))) {
+
+            Uri newUri = getContentResolver().insert(ItemContract.ItemEntry.SOLD_ITEMS_CONTENT_URI, values);
+
+            Log.d(TAG, "saveItemData: NEWURI : " + newUri);
+
+            if (newUri != null) {
+                Toast.makeText(getApplicationContext(), "Item inserted", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(getApplicationContext(), "Error inserting", Toast.LENGTH_SHORT).show();
+            }
+            finish();
+
+
         }
 
     }
@@ -150,8 +166,20 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
 
-        if (uri == null) {
-            MenuItem delete = menu.findItem(R.id.delete_item);
+        MenuItem delete = menu.findItem(R.id.delete_item);
+        MenuItem cart = menu.findItem(R.id.buy_item);
+        MenuItem save = menu.findItem(R.id.save_item);
+
+        if (getTitle().equals(getString(R.string.add_item))) {
+//            hide the delete button
+            delete.setVisible(false);
+
+//            Hide the buy button
+            cart.setVisible(false);
+        } else if (getTitle().equals(getString(R.string.edit_item))) {
+            cart.setVisible(false);
+        } else if (getTitle().equals(getString(R.string.buy_item))) {
+            save.setVisible(false);
             delete.setVisible(false);
         }
 
@@ -173,6 +201,9 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
                 return true;
             case R.id.delete_item:
                 deleteConfirmationDialog();
+                return true;
+            case R.id.buy_item:
+                saveItemData();
                 return true;
             case android.R.id.home:
                 if (!itemWasTouched) {
@@ -353,7 +384,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-            if ( cursor.moveToFirst()){
+        if (cursor.moveToFirst()) {
 
             item_name.setText(cursor.getString(cursor.getColumnIndexOrThrow(ItemContract.ItemEntry.COLUMN_NAME_NAME)));
             item_price.setText(cursor.getString(cursor.getColumnIndexOrThrow(ItemContract.ItemEntry.COLUMN_NAME_PRICE)));
