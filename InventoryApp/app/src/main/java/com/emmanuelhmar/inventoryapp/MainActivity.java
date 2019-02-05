@@ -77,6 +77,10 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
             case R.id.delete_all_items:
                 deleteConfirmationDialog();
                 return true;
+            case R.id.sales_item:
+                Intent intent = new Intent(this, SoldActivity.class);
+                startActivity(intent);
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }

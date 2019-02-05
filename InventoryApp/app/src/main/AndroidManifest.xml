@@ -8,7 +8,6 @@
         tools:node="replace" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
-
     <application
         android:name=".MyCustomApplication"
         android:allowBackup="true"
@@ -19,9 +18,11 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <activity android:name=".SoldActivity"
+            android:parentActivityName=".MainActivity"/>
         <activity
             android:name=".EditorActivity"
-            android:parentActivityName=".MainActivity"></activity>
+            android:parentActivityName=".MainActivity" />
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -31,10 +32,9 @@
         </activity>
 
         <provider
-            android:authorities="com.emmanuelhmar.inventoryapp"
             android:name=".data.ItemContentProvider"
-            android:exported="false"/>
-        
+            android:authorities="com.emmanuelhmar.inventoryapp"
+            android:exported="false" />
     </application>
 
 </manifest>

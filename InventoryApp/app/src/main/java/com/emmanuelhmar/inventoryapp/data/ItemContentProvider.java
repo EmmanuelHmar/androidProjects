@@ -29,7 +29,7 @@ public class ItemContentProvider extends ContentProvider {
         uriMatcher.addURI(ItemContract.CONTENT_AUTHORITY, ItemContract.PATH_ITEMS, ITEMS);
         uriMatcher.addURI(ItemContract.CONTENT_AUTHORITY, ItemContract.SOLD_ITEMS, SOLD);
         uriMatcher.addURI(ItemContract.CONTENT_AUTHORITY, ItemContract.PATH_ITEMS + "/#", ITEM_ID);
-        uriMatcher.addURI(ItemContract.CONTENT_AUTHORITY, ItemContract.SOLD_ITEMS + "/#", SOLD_ITEMt a);
+        uriMatcher.addURI(ItemContract.CONTENT_AUTHORITY, ItemContract.SOLD_ITEMS + "/#", SOLD_ITEM);
     }
 
     @Override
@@ -41,12 +41,19 @@ public class ItemContentProvider extends ContentProvider {
     @Override
     public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
         SQLiteDatabase db = dbHelper.getReadableDatabase();
+//        SQLiteDatabase database = new SoldDbHelper(getContext()).getReadableDatabase();
+
+        int match = uriMatcher.match(uri);
 
         Cursor cursor;
 
-        switch (uriMatcher.match(uri)) {
+        switch (match) {
+//            case SOLD:
             case ITEMS:
                 cursor = db.query(ItemContract.ItemEntry.TABLE_NAME, projection, selection, selectionArgs, null, null, sortOrder);
+                break;
+            case SOLD:
+                cursor = db.query(ItemContract.ItemEntry.SOLD_TABLE_NAME, projection, selection, selectionArgs, null, null, sortOrder);
                 break;
             case ITEM_ID:
 //                Select statement
@@ -55,6 +62,11 @@ public class ItemContentProvider extends ContentProvider {
                 selectionArgs = new String[]{String.valueOf(ContentUris.parseId(uri))};
                 cursor = db.query(ItemContract.ItemEntry.TABLE_NAME, projection, selection, selectionArgs, null, null, sortOrder);
                 break;
+//            case SOLD_ITEM:
+//                selection = ItemContract.ItemEntry.TABLE_ID + "=?";
+//                selectionArgs = new String[]{String.valueOf(ContentUris.parseId(uri))};
+//                cursor = database.query(ItemContract.ItemEntry.SOLD_TABLE_NAME, projection, selection, selectionArgs, null, null, sortOrder);
+//                break;
             default:
                 throw new IllegalArgumentException("Cannot query unknown " + uri);
         }
@@ -80,6 +92,7 @@ public class ItemContentProvider extends ContentProvider {
         }
     }
 
+    //    TODO: when matching bought items, insert to correct one
     @Override
     public Uri insert(Uri uri, ContentValues contentValues) {
 
@@ -90,13 +103,15 @@ public class ItemContentProvider extends ContentProvider {
         switch (match) {
 //            Can only insert 1 item at a time
             case ITEMS:
-                return insertItem(uri, contentValues);
+                return insertItem(uri, contentValues, match);
+            case SOLD:
+                return insertItem(uri, contentValues, match);
             default:
-                throw new IllegalArgumentException("Error inserting pet");
+                throw new IllegalArgumentException("Error inserting item");
         }
     }
 
-    private Uri insertItem(Uri uri, ContentValues contentValues) {
+    private Uri insertItem(Uri uri, ContentValues contentValues, int match) {
         String name = contentValues.getAsString(ItemContract.ItemEntry.COLUMN_NAME_NAME);
         Integer price = contentValues.getAsInteger(ItemContract.ItemEntry.COLUMN_NAME_PRICE);
         Integer quantity = contentValues.getAsInteger(ItemContract.ItemEntry.COLUMN_NAME_QUANTITY);
@@ -112,14 +127,31 @@ public class ItemContentProvider extends ContentProvider {
             throw new IllegalArgumentException("Supplier is invalid");
         }
 
+
+        long newRow;
+
         SQLiteDatabase db = dbHelper.getWritableDatabase();
+        if (match == 100) {
 
-        long newRow = db.insert(ItemContract.ItemEntry.TABLE_NAME, null, contentValues);
+            newRow = db.insert(ItemContract.ItemEntry.TABLE_NAME, null, contentValues);
 
-        if (newRow != -1) {
-            getContext().getContentResolver().notifyChange(uri, null);
+            if (newRow != -1) {
+                getContext().getContentResolver().notifyChange(uri, null);
+            }
+
+            Log.d(TAG, "insertItem: CODE: " + " Regular item");
+
+        } else {
+//            SoldDbHelper soldDbHelper = new SoldDbHelper(getContext());
+//            SQLiteDatabase db = soldDbHelper.getWritableDatabase();
+            newRow = db.insert(ItemContract.ItemEntry.SOLD_TABLE_NAME, null, contentValues);
+
+            if (newRow != -1) {
+                getContext().getContentResolver().notifyChange(uri, null);
+            }
+
+            Log.d(TAG, "insertItem: CODE: " + newRow);
         }
-
         return ContentUris.withAppendedId(uri, newRow);
     }
 
@@ -159,7 +191,7 @@ public class ItemContentProvider extends ContentProvider {
         selection = ItemContract.ItemEntry.TABLE_ID + "=?";
         selectionArgs = new String[]{String.valueOf(ContentUris.parseId(uri))};
 
-        int row =  db.update(ItemContract.ItemEntry.TABLE_NAME, contentValues, selection, selectionArgs);
+        int row = db.update(ItemContract.ItemEntry.TABLE_NAME, contentValues, selection, selectionArgs);
 
         if (row != 0) {
             getContext().getContentResolver().notifyChange(uri, null);
