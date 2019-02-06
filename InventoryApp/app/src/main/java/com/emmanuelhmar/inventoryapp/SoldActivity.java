@@ -22,6 +22,8 @@ public class SoldActivity extends AppCompatActivity implements LoaderManager.Loa
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sold);
 
+        setTitle("Sold Items");
+
         getLoaderManager().initLoader(1, null, this);
     }
 
