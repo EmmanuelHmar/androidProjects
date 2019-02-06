@@ -1,6 +1,7 @@
 
 package com.emmanuelhmar.inventoryapp;
 
+import android.annotation.SuppressLint;
 import android.app.LoaderManager;
 import android.content.ContentValues;
 import android.content.CursorLoader;
@@ -46,6 +47,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
     private boolean itemWasTouched;
 
 
+    @SuppressLint("ClickableViewAccessibility")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -124,6 +126,10 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
 
             finish();
         } else if (getTitle().equals(getString(R.string.buy_item))) {
+//            Need to add the total price for the bought items tables
+            int totalPrice = price * quantity;
+
+            values.put(ItemContract.ItemEntry.COLUMN_NAME_TOTAL,totalPrice);
 
             Uri newUri = getContentResolver().insert(ItemContract.ItemEntry.SOLD_ITEMS_CONTENT_URI, values);
 
@@ -135,10 +141,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
                 Toast.makeText(getApplicationContext(), "Error inserting", Toast.LENGTH_SHORT).show();
             }
             finish();
-
-
         }
-
     }
 
     //    Get an image from gallery when the button is pressed, this is called when image is returned
@@ -203,7 +206,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
                 deleteConfirmationDialog();
                 return true;
             case R.id.buy_item:
-                saveItemData();
+                buyConfirmationDialog();
                 return true;
             case android.R.id.home:
                 if (!itemWasTouched) {
@@ -218,13 +221,10 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
                     }
                 };
 
-                Toast.makeText(this, "touched", Toast.LENGTH_SHORT).show();
-
                 returnHomeDialog(dialogInterface);
 
                 return true;
         }
-
         return super.onOptionsItemSelected(item);
     }
 
@@ -256,7 +256,6 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         } else {
             Toast.makeText(this, "Error deleting", Toast.LENGTH_SHORT).show();
         }
-
         finish();
     }
 
@@ -362,6 +361,30 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
 
         AlertDialog alertDialog = builder.create();
 
+        alertDialog.show();
+    }
+
+    private void buyConfirmationDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+        builder.setMessage("Buy this item?").setTitle("Buy Confirmation");
+        builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                saveItemData();
+            }
+        });
+
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                if (dialogInterface != null) {
+                    dialogInterface.dismiss();
+                }
+            }
+        });
+
+        AlertDialog alertDialog = builder.create();
         alertDialog.show();
     }
 

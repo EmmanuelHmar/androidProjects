@@ -130,6 +130,7 @@ public class ItemContentProvider extends ContentProvider {
 
         long newRow;
 
+//        Insert the regular items
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         if (match == 100) {
 
@@ -142,8 +143,8 @@ public class ItemContentProvider extends ContentProvider {
             Log.d(TAG, "insertItem: CODE: " + " Regular item");
 
         } else {
-//            SoldDbHelper soldDbHelper = new SoldDbHelper(getContext());
-//            SQLiteDatabase db = soldDbHelper.getWritableDatabase();
+//            String total = contentValues.getAsString(ItemContract.ItemEntry.COLUMN_NAME_TOTAL);
+
             newRow = db.insert(ItemContract.ItemEntry.SOLD_TABLE_NAME, null, contentValues);
 
             if (newRow != -1) {

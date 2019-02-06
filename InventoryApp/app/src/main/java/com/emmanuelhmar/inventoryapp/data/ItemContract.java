@@ -35,6 +35,7 @@ public class ItemContract {
         public static final String COLUMN_NAME_PRICE = "price";
         public static final String COLUMN_NAME_QUANTITY = "quantity";
         public static final String COLUMN_NAME_SUPPLIER = "supplier";
+        public static final String COLUMN_NAME_TOTAL = "total";
         public static final String COLUMN_NAME_PICTURE = "picture";
 
         public static final String SOLD_TABLE_NAME = "sold";

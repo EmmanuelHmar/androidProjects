@@ -16,13 +16,14 @@ import com.emmanuelhmar.inventoryapp.data.ItemCursorAdapter;
 
 public class SoldActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
     private CursorAdapter cursorAdapter;
+    private String TAG = SoldActivity.class.getName();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sold);
 
-        setTitle("Sold Items");
+        setTitle("Sold Items & Shipment");
 
         getLoaderManager().initLoader(1, null, this);
     }
@@ -34,28 +35,21 @@ public class SoldActivity extends AppCompatActivity implements LoaderManager.Loa
 
         String[] projection = {ItemContract.ItemEntry._ID, ItemContract.ItemEntry.COLUMN_NAME_NAME,
                 ItemContract.ItemEntry.COLUMN_NAME_PRICE, ItemContract.ItemEntry.COLUMN_NAME_QUANTITY,
-                ItemContract.ItemEntry.COLUMN_NAME_SUPPLIER, ItemContract.ItemEntry.COLUMN_NAME_PICTURE};
+                ItemContract.ItemEntry.COLUMN_NAME_SUPPLIER, ItemContract.ItemEntry.COLUMN_NAME_TOTAL,
+                ItemContract.ItemEntry.COLUMN_NAME_PICTURE};
 
         return new CursorLoader(getApplicationContext(), ItemContract.ItemEntry.SOLD_ITEMS_CONTENT_URI, projection, null, null, null);
     }
 
     @Override
-    public void onLoadFinished(android.content.Loader<Cursor> loader, Cursor cursor) {
+    public void onLoadFinished(android.content.Loader<Cursor> loader, final Cursor cursor) {
         ListView listView = findViewById(R.id.sold_view);
 //        View view = findViewById(R.id.main_view);
 
-        cursorAdapter = new ItemCursorAdapter(this, cursor);
+        cursorAdapter = new ItemCursorAdapter(this, cursor, "sales");
 
 //        listView.setEmptyView(view);
         listView.setAdapter(cursorAdapter);
-
-//        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-//            @Override
-//            public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
-//
-//                editOrDeleteDialog(id);
-//            }
-//        });
 
         cursorAdapter.swapCursor(cursor);
     }
@@ -65,4 +59,5 @@ public class SoldActivity extends AppCompatActivity implements LoaderManager.Loa
 
         cursorAdapter.swapCursor(null);
     }
+
 }

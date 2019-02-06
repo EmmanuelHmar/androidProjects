@@ -91,14 +91,38 @@
         android:id="@+id/item_supplier"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginEnd="4dp"
         android:paddingLeft="4dp"
         android:paddingRight="4dp"
-        android:layout_marginEnd="4dp"
         android:textAppearance="@style/TextAppearance.AppCompat.Medium"
         app:layout_constraintEnd_toStartOf="@id/guideline"
         app:layout_constraintStart_toEndOf="@id/quantity_holder"
         app:layout_constraintTop_toBottomOf="@id/item_quantity"
         tools:text="Tesla" />
+
+    <TextView
+        android:id="@+id/total_holder"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:paddingStart="16dp"
+        android:text="Sales Price: "
+        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+        android:textColor="@android:color/black"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/supplier_holder" />
+
+    <TextView
+        android:id="@+id/item_total"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="4dp"
+        android:paddingLeft="4dp"
+        android:paddingRight="4dp"
+        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+        app:layout_constraintEnd_toStartOf="@id/guideline"
+        app:layout_constraintStart_toEndOf="@id/total_holder"
+        app:layout_constraintTop_toBottomOf="@id/item_supplier"
+        tools:text="$55" />
 
     <android.support.constraint.Guideline
         android:id="@+id/guideline"

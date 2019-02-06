@@ -15,9 +15,16 @@ import com.emmanuelhmar.inventoryapp.R;
 
 
 public class ItemCursorAdapter extends CursorAdapter {
+    private String state = "unsold";
+    private String supplier;
 
     public ItemCursorAdapter(Context context, Cursor c) {
         super(context, c, 0);
+    }
+
+    public ItemCursorAdapter(Context context, Cursor c, String state) {
+        super(context, c, 0);
+        this.state = state;
     }
 
     //    Inflate a new view and return it
@@ -40,12 +47,35 @@ public class ItemCursorAdapter extends CursorAdapter {
         String supplier = cursor.getString(cursor.getColumnIndexOrThrow("supplier"));
         byte[] blob = cursor.getBlob(cursor.getColumnIndexOrThrow("picture"));
 
+        setSupplier(supplier);
+
         Bitmap bitmap = BitmapFactory.decodeByteArray(blob, 0, blob.length);
+
+        TextView total = view.findViewById(R.id.item_total);
+        TextView totalHolder = view.findViewById(R.id.total_holder);
+
+//        If we are not on sales page, then hide the total price views
+        if (state.equals("sales")) {
+            int amount = cursor.getInt(cursor.getColumnIndexOrThrow("total"));
+            String sum = "$" + amount;
+            total.setText(sum);
+        } else {
+            total.setVisibility(View.INVISIBLE);
+            totalHolder.setVisibility(View.INVISIBLE);
+        }
 
         itemName.setText(name);
         itemPrice.setText(String.valueOf("$"+ price));
         itemQuantity.setText(String.valueOf(quantity));
         itemSupplier.setText(supplier);
         itemImage.setImageBitmap(bitmap);
+    }
+
+    public String getSupplier() {
+        return supplier;
+    }
+
+    public void setSupplier(String supplier) {
+        this.supplier = supplier;
     }
 }
