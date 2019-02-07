@@ -53,15 +53,24 @@ public class ItemCursorAdapter extends CursorAdapter {
 
         TextView total = view.findViewById(R.id.item_total);
         TextView totalHolder = view.findViewById(R.id.total_holder);
+        TextView tracking = view.findViewById(R.id.item_tracking);
+        TextView trackingHolder = view.findViewById(R.id.tracking_holder);
 
 //        If we are not on sales page, then hide the total price views
         if (state.equals("sales")) {
             int amount = cursor.getInt(cursor.getColumnIndexOrThrow("total"));
             String sum = "$" + amount;
             total.setText(sum);
+
+            int max = 900000;
+            int min = 100000;
+            int range = max - min + 1;
+            tracking.setText(String.valueOf((int) ((Math.random() * range) + min)));
         } else {
-            total.setVisibility(View.INVISIBLE);
-            totalHolder.setVisibility(View.INVISIBLE);
+            total.setVisibility(View.GONE);
+            totalHolder.setVisibility(View.GONE);
+            tracking.setVisibility(View.GONE);
+            trackingHolder.setVisibility(View.GONE);
         }
 
         itemName.setText(name);
