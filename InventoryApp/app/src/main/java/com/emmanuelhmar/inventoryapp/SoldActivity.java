@@ -8,6 +8,8 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.CursorAdapter;
 import android.widget.ListView;
 
@@ -23,9 +25,38 @@ public class SoldActivity extends AppCompatActivity implements LoaderManager.Loa
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sold);
 
+        invalidateOptionsMenu();
+
         setTitle("Sold Items & Shipment");
 
         getLoaderManager().initLoader(1, null, this);
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        MenuItem dummyItem = menu.getItem(R.id.dummy_item);
+        MenuItem cart = menu.getItem(R.id.save_item);
+
+        cart.setVisible(false);
+        dummyItem.setVisible(false);
+
+        return super.onPrepareOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        if (item.getItemId() == R.id.delete_all_items) {
+
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 
     //    The Cursor Loader
