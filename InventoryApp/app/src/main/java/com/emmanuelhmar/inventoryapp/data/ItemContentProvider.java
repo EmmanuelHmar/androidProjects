@@ -127,7 +127,6 @@ public class ItemContentProvider extends ContentProvider {
             throw new IllegalArgumentException("Supplier is invalid");
         }
 
-
         long newRow;
 
 //        Insert the regular items
@@ -140,18 +139,12 @@ public class ItemContentProvider extends ContentProvider {
                 getContext().getContentResolver().notifyChange(uri, null);
             }
 
-            Log.d(TAG, "insertItem: CODE: " + " Regular item");
-
         } else {
-//            String total = contentValues.getAsString(ItemContract.ItemEntry.COLUMN_NAME_TOTAL);
-
             newRow = db.insert(ItemContract.ItemEntry.SOLD_TABLE_NAME, null, contentValues);
 
             if (newRow != -1) {
                 getContext().getContentResolver().notifyChange(uri, null);
             }
-
-            Log.d(TAG, "insertItem: CODE: " + newRow);
         }
         return ContentUris.withAppendedId(uri, newRow);
     }
@@ -161,27 +154,36 @@ public class ItemContentProvider extends ContentProvider {
         int match = uriMatcher.match(uri);
 
         switch (match) {
+            case SOLD:
+                return deletePets(uri, selection, selectionArgs, match);
             case ITEMS:
-                return deletePets(uri, selection, selectionArgs);
+                return deletePets(uri, selection, selectionArgs, match);
             case ITEM_ID:
                 selection = ItemContract.ItemEntry.TABLE_ID + "=?";
                 selectionArgs = new String[]{String.valueOf(ContentUris.parseId(uri))};
-                return deletePets(uri, selection, selectionArgs);
+                return deletePets(uri, selection, selectionArgs, match);
             default:
                 throw new IllegalArgumentException("Error deleting item " + uri);
         }
     }
 
-    private int deletePets(Uri uri, String selection, String[] selectionArgs) {
+    private int deletePets(Uri uri, String selection, String[] selectionArgs, int match) {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
 
-        int rows = db.delete(ItemContract.ItemEntry.TABLE_NAME, selection, selectionArgs);
-
+        int rows;
+        if (match == 200) {
+            rows = db.delete(ItemContract.ItemEntry.SOLD_TABLE_NAME, selection, selectionArgs);
 //        Notify the cursor change when item(s) are deleted
-        if (rows != 0) {
-            getContext().getContentResolver().notifyChange(uri, null);
+            if (rows != 0) {
+                getContext().getContentResolver().notifyChange(uri, null);
+            }
+        } else {
+            rows = db.delete(ItemContract.ItemEntry.TABLE_NAME, selection, selectionArgs);
+//        Notify the cursor change when item(s) are deleted
+            if (rows != 0) {
+                getContext().getContentResolver().notifyChange(uri, null);
+            }
         }
-
         return rows;
     }
 

@@ -11,10 +11,8 @@ import android.content.Loader;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TextInputEditText;
 import android.support.v4.app.NavUtils;
@@ -28,11 +26,10 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.emmanuelhmar.inventoryapp.data.ItemContract;
 
-import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.InputStream;
 
 public class EditorActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
@@ -45,6 +42,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
     private TextInputEditText item_supplier;
     private ImageView item_image;
     private boolean itemWasTouched;
+    private String imagePath;
 
 
     @SuppressLint("ClickableViewAccessibility")
@@ -92,10 +90,11 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         String supplier = item_supplier.getText().toString().trim();
 
 //        Convert the image to blob
-        Bitmap bitmap = ((BitmapDrawable) item_image.getDrawable()).getBitmap();
-        ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.WEBP, 50, stream);
-        byte[] blob = stream.toByteArray();
+//        Bitmap bitmap = ((BitmapDrawable) item_image.getDrawable()).getBitmap();
+//        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+//        bitmap.compress(Bitmap.CompressFormat.WEBP, 50, stream);
+//        byte[] blob = stream.toByteArray();
+//        String blob = imagePath;
 
         ContentValues values = new ContentValues();
 
@@ -103,7 +102,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         values.put(ItemContract.ItemEntry.COLUMN_NAME_PRICE, price);
         values.put(ItemContract.ItemEntry.COLUMN_NAME_QUANTITY, quantity);
         values.put(ItemContract.ItemEntry.COLUMN_NAME_SUPPLIER, supplier);
-        values.put(ItemContract.ItemEntry.COLUMN_NAME_PICTURE, blob);
+        values.put(ItemContract.ItemEntry.COLUMN_NAME_PICTURE, imagePath);
 
         if (getTitle().equals(getString(R.string.add_item))) {
 
@@ -133,12 +132,11 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
 
             Uri newUri = getContentResolver().insert(ItemContract.ItemEntry.SOLD_ITEMS_CONTENT_URI, values);
 
-            Log.d(TAG, "saveItemData: NEWURI : " + newUri);
 
             if (newUri != null) {
-                Toast.makeText(getApplicationContext(), "Item inserted", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), "Item bought", Toast.LENGTH_SHORT).show();
             } else {
-                Toast.makeText(getApplicationContext(), "Error inserting", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), "Error buying", Toast.LENGTH_SHORT).show();
             }
             finish();
         }
@@ -150,17 +148,21 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         if (requestCode == PICK_IMAGE_REQUEST) {
             if (resultCode == RESULT_OK) {
                 Uri imageUri = data.getData();
-                try {
-                    Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), imageUri);
+
+                imagePath = imageUri.toString();
+//                try {
+//                    Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), imageUri);
                     ImageView image = findViewById(R.id.item_image);
 
-                    ByteArrayOutputStream stream = new ByteArrayOutputStream();
-                    bitmap.compress(Bitmap.CompressFormat.WEBP, 50, stream);
-                    InputStream inputStream = this.getContentResolver().openInputStream(imageUri);
-                    image.setImageBitmap(decodeSampleBitmapFromResource(inputStream, imageUri, 150, 150));
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+//                    ByteArrayOutputStream stream = new ByteArrayOutputStream();
+//                    bitmap.compress(Bitmap.CompressFormat.WEBP, 50, stream);
+//                    InputStream inputStream = this.getContentResolver().openInputStream(imageUri);
+//                    image.setImageBitmap(decodeSampleBitmapFromResource(inputStream, imageUri, 150, 150));
+
+                    Glide.with(this).load(imageUri).into(image);
+//                } catch (IOException e) {
+//                    e.printStackTrace();
+//                }
             }
         }
         super.onActivityResult(requestCode, resultCode, data);
@@ -297,7 +299,6 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
     public Bitmap decodeSampleBitmapFromResource(InputStream inputStream, Uri uri, int reqWidth, int reqHeight) throws FileNotFoundException {
 
 //        First decode with InJustDecodeBounds = true to check the dimensions
-        Log.d(TAG, "decodeSampleBitmapFromResource: INPUTSTREAM : " + inputStream);
         final BitmapFactory.Options options = new BitmapFactory.Options();
         options.inJustDecodeBounds = true;
 
@@ -413,9 +414,13 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
             item_price.setText(cursor.getString(cursor.getColumnIndexOrThrow(ItemContract.ItemEntry.COLUMN_NAME_PRICE)));
             item_quantity.setText(cursor.getString(cursor.getColumnIndexOrThrow(ItemContract.ItemEntry.COLUMN_NAME_QUANTITY)));
             item_supplier.setText(cursor.getString(cursor.getColumnIndexOrThrow(ItemContract.ItemEntry.COLUMN_NAME_SUPPLIER)));
-            byte[] bytes = cursor.getBlob(cursor.getColumnIndexOrThrow(ItemContract.ItemEntry.COLUMN_NAME_PICTURE));
-            Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
-            item_image.setImageBitmap(bitmap);
+//            byte[] bytes = cursor.getBlob(cursor.getColumnIndexOrThrow(ItemContract.ItemEntry.COLUMN_NAME_PICTURE));
+            String bytes = cursor.getString(cursor.getColumnIndexOrThrow(ItemContract.ItemEntry.COLUMN_NAME_PICTURE));
+            imagePath = bytes;
+
+//            Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+            Glide.with(this).load(bytes).into(item_image);
+//            item_image.setImageBitmap(bitmap);
         }
     }
 

@@ -5,7 +5,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
 public class ItemDbHelper extends SQLiteOpenHelper {
-    public static final int DATABASE_VERSION = 3;
+    public static final int DATABASE_VERSION = 4;
     public static final String DATABASE_NAME = "items.db";
 
     //    For regular items table
@@ -14,7 +14,8 @@ public class ItemDbHelper extends SQLiteOpenHelper {
             ItemContract.ItemEntry.COLUMN_NAME_NAME + " TEXT NOT NULL, " +
             ItemContract.ItemEntry.COLUMN_NAME_PRICE + " INTEGER NOT NULL," + ItemContract.ItemEntry.COLUMN_NAME_QUANTITY +
             " INTEGER NOT NULL DEFAULT 0," + ItemContract.ItemEntry.COLUMN_NAME_SUPPLIER + " TEXT NOT NULL," +
-            ItemContract.ItemEntry.COLUMN_NAME_PICTURE + " BLOB);";
+//            ItemContract.ItemEntry.COLUMN_NAME_PICTURE + " BLOB);";
+            ItemContract.ItemEntry.COLUMN_NAME_PICTURE + " TEXT);";
 
     private static final String SQL_DELETE_ENTRIES = "DROP TABLE IF EXISTS " + ItemContract.ItemEntry.TABLE_NAME;
 
@@ -25,7 +26,7 @@ public class ItemDbHelper extends SQLiteOpenHelper {
             ItemContract.ItemEntry.COLUMN_NAME_PRICE + " INTEGER NOT NULL," + ItemContract.ItemEntry.COLUMN_NAME_QUANTITY +
             " INTEGER NOT NULL DEFAULT 0," + ItemContract.ItemEntry.COLUMN_NAME_SUPPLIER + " TEXT NOT NULL," +
             ItemContract.ItemEntry.COLUMN_NAME_TOTAL + " INTEGER NOT NULL DEFAULT 0, " +
-            ItemContract.ItemEntry.COLUMN_NAME_PICTURE + " BLOB);";
+            ItemContract.ItemEntry.COLUMN_NAME_PICTURE + " TEXT);";
 
     private static final String SQL_DELETE_SOLD_ENTRIES = "DROP TABLE IF EXISTS " + ItemContract.ItemEntry.SOLD_TABLE_NAME;
 

@@ -2,8 +2,7 @@ package com.emmanuelhmar.inventoryapp.data;
 
 import android.content.Context;
 import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -45,11 +44,12 @@ public class ItemCursorAdapter extends CursorAdapter {
         int price = cursor.getInt(cursor.getColumnIndexOrThrow("price"));
         int quantity = cursor.getInt(cursor.getColumnIndexOrThrow("quantity"));
         String supplier = cursor.getString(cursor.getColumnIndexOrThrow("supplier"));
-        byte[] blob = cursor.getBlob(cursor.getColumnIndexOrThrow("picture"));
+//        byte[] blob = cursor.getBlob(cursor.getColumnIndexOrThrow("picture"));
+        String blob = cursor.getString(cursor.getColumnIndexOrThrow("picture"));
 
         setSupplier(supplier);
 
-        Bitmap bitmap = BitmapFactory.decodeByteArray(blob, 0, blob.length);
+//        Bitmap bitmap = BitmapFactory.decodeByteArray(blob, 0, blob.length);
 
         TextView total = view.findViewById(R.id.item_total);
         TextView totalHolder = view.findViewById(R.id.total_holder);
@@ -77,7 +77,7 @@ public class ItemCursorAdapter extends CursorAdapter {
         itemPrice.setText(String.valueOf("$"+ price));
         itemQuantity.setText(String.valueOf(quantity));
         itemSupplier.setText(supplier);
-        itemImage.setImageBitmap(bitmap);
+        itemImage.setImageURI(Uri.parse(blob));
     }
 
     public String getSupplier() {

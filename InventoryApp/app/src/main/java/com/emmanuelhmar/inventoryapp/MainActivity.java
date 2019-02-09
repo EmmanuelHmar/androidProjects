@@ -1,5 +1,6 @@
 package com.emmanuelhmar.inventoryapp;
 
+import android.Manifest;
 import android.app.AlertDialog;
 import android.app.LoaderManager;
 import android.content.ContentUris;
@@ -8,15 +9,16 @@ import android.content.CursorLoader;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.Loader;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -30,12 +32,11 @@ import com.emmanuelhmar.inventoryapp.data.ItemContract;
 import com.emmanuelhmar.inventoryapp.data.ItemCursorAdapter;
 import com.emmanuelhmar.inventoryapp.data.ItemDbHelper;
 
-import java.io.ByteArrayOutputStream;
-
 public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
     private ItemDbHelper dbHelper;
     private ItemCursorAdapter cursorAdapter;
     private boolean editOrDelete;
+    private final int MY_PERMISISONS_REQUEST_READ_EX_STORAGE = 99;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,6 +44,19 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         setContentView(R.layout.activity_main);
 
         FloatingActionButton fab = findViewById(R.id.fab);
+
+//        Ask the app for permissions to storage
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+//        Permission is not granted
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.READ_EXTERNAL_STORAGE)) {
+
+            } else {
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
+                        MY_PERMISISONS_REQUEST_READ_EX_STORAGE);
+            }
+        } else {
+//            Permission has been gratned
+        }
 
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -99,11 +113,12 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     private void insertDummyPet() {
         ContentValues contentValues = new ContentValues();
 
-        Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.panda);
-        ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.WEBP, 70, stream);
-
-        byte[] b = stream.toByteArray();
+//        Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.panda);
+//        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+//        bitmap.compress(Bitmap.CompressFormat.WEBP, 70, stream);
+//
+//        byte[] b = stream.toByteArray();
+        String b = "android.resource://" + BuildConfig.APPLICATION_ID + "/" + R.drawable.panda;
 
         contentValues.put(ItemContract.ItemEntry.COLUMN_NAME_NAME, "cake");
         contentValues.put(ItemContract.ItemEntry.COLUMN_NAME_PRICE, 20);
@@ -114,9 +129,9 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         Uri uri = getContentResolver().insert(ItemContract.ItemEntry.CONTENT_URI, contentValues);
 
         if (uri != null) {
-            Toast.makeText(getApplicationContext(), "added item", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "added item", Toast.LENGTH_SHORT).show();
         } else {
-            Toast.makeText(getApplicationContext(), "error ", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "error ", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -253,5 +268,27 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
         AlertDialog alertDialog = builder.create();
         alertDialog.show();
+    }
+
+//    public boolean isReadStorePermissionGranted() {
+//        if (Build.VERSION.SDK_INT >= 23) {
+//            if (checkPermission(Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+//
+//            }
+//        }
+//    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        switch (requestCode) {
+            case MY_PERMISISONS_REQUEST_READ_EX_STORAGE:
+//                If request is cancelled, the result arrays are empty
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+//                    Permission granted
+                } else {
+//                    Permission denied, disable the functionality
+                }
+                return;
+        }
     }
 }
