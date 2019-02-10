@@ -1,10 +1,10 @@
-#Inventory App
+# Inventory App
 
-###Type:Android
+### Type:Android
 
-###Language: Java
+### Language: Java
 
-###Project Overview:
+### Project Overview:
 
 Create a store that allows to add items, and let customers buy the items. 
 
