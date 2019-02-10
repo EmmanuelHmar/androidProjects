@@ -265,13 +265,16 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
     public void buttonClick(View view) {
         Log.d(TAG, "onClick: Button");
         Intent intent = new Intent(Intent.ACTION_PICK);
+//        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
         intent.setType("image/*");
         String[] mimeTypes = {"image/jpeg", "image/png"};
         intent.putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes);
         intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
 
-        startActivityForResult(Intent.createChooser(intent, "Select Image"),
-                PICK_IMAGE_REQUEST);
+        if (intent.resolveActivity(getPackageManager()) != null) {
+            startActivityForResult(Intent.createChooser(intent, "Select Image"),
+                    PICK_IMAGE_REQUEST);
+        }
     }
 
     //    Load a scaled down version

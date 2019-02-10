@@ -2,7 +2,7 @@ package com.emmanuelhmar.inventoryapp.data;
 
 import android.content.Context;
 import android.database.Cursor;
-import android.net.Uri;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,20 +10,25 @@ import android.widget.CursorAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.emmanuelhmar.inventoryapp.R;
 
 
 public class ItemCursorAdapter extends CursorAdapter {
     private String state = "unsold";
     private String supplier;
+    private Context mContext;
 
     public ItemCursorAdapter(Context context, Cursor c) {
         super(context, c, 0);
+        mContext = context;
     }
 
     public ItemCursorAdapter(Context context, Cursor c, String state) {
         super(context, c, 0);
         this.state = state;
+        mContext = context;
     }
 
     //    Inflate a new view and return it
@@ -77,7 +82,11 @@ public class ItemCursorAdapter extends CursorAdapter {
         itemPrice.setText(String.valueOf("$"+ price));
         itemQuantity.setText(String.valueOf(quantity));
         itemSupplier.setText(supplier);
-        itemImage.setImageURI(Uri.parse(blob));
+//        itemImage.setImageURI(Uri.parse(blob));
+        Log.d("TAG", "bindView: " + context);
+        Log.d("TAG2", "bindView: " + mContext);
+//        Log.d(TAG, String.valueOf(false));
+        Glide.with(mContext).load(blob).apply(new RequestOptions().centerCrop()).into(itemImage);
     }
 
     public String getSupplier() {

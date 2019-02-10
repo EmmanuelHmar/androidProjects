@@ -36,7 +36,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     private ItemDbHelper dbHelper;
     private ItemCursorAdapter cursorAdapter;
     private boolean editOrDelete;
-    private final int MY_PERMISISONS_REQUEST_READ_EX_STORAGE = 99;
+    private final int MY_PERMISSIONS_REQUEST_READ_EX_STORAGE = 99;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,7 +52,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
             } else {
                 ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
-                        MY_PERMISISONS_REQUEST_READ_EX_STORAGE);
+                        MY_PERMISSIONS_REQUEST_READ_EX_STORAGE);
             }
         } else {
 //            Permission has been gratned
@@ -196,7 +196,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     @Override
     protected void onStart() {
         super.onStart();
-        displayItems();
+//        displayItems();
     }
 
     @Override
@@ -281,7 +281,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         switch (requestCode) {
-            case MY_PERMISISONS_REQUEST_READ_EX_STORAGE:
+            case MY_PERMISSIONS_REQUEST_READ_EX_STORAGE:
 //                If request is cancelled, the result arrays are empty
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 //                    Permission granted

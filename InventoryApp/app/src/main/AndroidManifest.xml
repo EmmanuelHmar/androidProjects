@@ -19,10 +19,12 @@
         android:theme="@style/AppTheme">
         <activity
             android:name=".SoldActivity"
+            android:theme="@style/EditorTheme"
             android:parentActivityName=".MainActivity" />
         <activity
             android:name=".EditorActivity"
-            android:parentActivityName=".MainActivity" />
+            android:parentActivityName=".MainActivity"
+            android:theme="@style/EditorTheme" />
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

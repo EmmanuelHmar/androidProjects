@@ -8,8 +8,8 @@
 
     <TextView
         android:id="@+id/name_holder"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
         android:paddingStart="16dp"
         android:text="Name: "
         android:textAppearance="@style/TextAppearance.AppCompat.Medium"
@@ -48,9 +48,9 @@
         android:paddingLeft="4dp"
         android:paddingRight="4dp"
         android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-        app:layout_constraintEnd_toStartOf="@id/guideline"
         app:layout_constraintStart_toEndOf="@id/price_holder"
         app:layout_constraintTop_toBottomOf="@id/item_name"
+        app:layout_constraintEnd_toStartOf="@id/guideline"
         tools:text="$55" />
 
     <TextView
