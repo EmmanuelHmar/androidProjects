@@ -8,7 +8,11 @@
 
 Create a store that allows to add items, and let customers buy the items. 
 
-Store the items in a SQLite database
+Store the items in a SQLite database.
+
+- SQLite - CRUD
+- Async CursorLoader
+- Content Provider
 
 ### Libraries Used
 
